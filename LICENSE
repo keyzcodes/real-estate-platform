@@ -1,0 +1,248 @@
+
+## 3. `docs/requirements/product-requirements.md`
+
+```markdown
+# Campus Hostel Product Requirements
+
+## 1. Product Overview
+
+Campus Hostel is a web platform for students searching for accommodation around a university.
+
+The MVP will serve one university campus but will be designed to support additional universities in future versions.
+
+## 2. Product Goal
+
+Allow students to discover hostels, view reliable accommodation information, and submit booking requests without visiting every hostel physically.
+
+## 3. Stakeholders
+
+| Stakeholder | Responsibility |
+|---|---|
+| Business owner | Defines business requirements and validates completed features |
+| Sunday Jime | Designs, develops, tests, and documents the platform |
+| Students | Search for hostels and submit booking requests |
+| Hostel managers | Provide accurate hostel and availability information |
+| Administrators | Manage listings, rooms, and bookings |
+
+## 4. User Roles
+
+### 4.1 Visitor
+
+A visitor can:
+
+- Visit the platform without logging in
+- Browse published hostel listings
+- Search and filter hostels
+- View hostel details
+- View photos and videos
+- View room types, prices, and amenities
+
+A visitor cannot:
+
+- Submit a booking
+- Access student pages
+- Access administrator pages
+
+### 4.2 Student
+
+A student can:
+
+- Register an account
+- Log in and log out
+- Manage basic profile information
+- Browse hostel listings
+- Submit a booking request
+- View personal bookings
+- Track booking status
+- Cancel a booking when permitted
+
+A student cannot:
+
+- Access another student’s bookings
+- Create or edit hostel listings
+- Approve booking requests
+- Access administrator pages
+
+### 4.3 Administrator
+
+An administrator can:
+
+- Log in securely
+- Create hostel listings
+- Edit hostel information
+- Upload hostel photos and videos
+- Add room types
+- Set room prices
+- Update room availability
+- Publish or hide listings
+- View student accounts
+- View booking requests
+- Approve or reject bookings
+
+## 5. Functional Requirements
+
+### FR-001: Browse Hostels
+
+The system shall display all published hostel listings.
+
+### FR-002: Search Hostels
+
+The system shall allow users to search for hostels by name.
+
+### FR-003: Filter Hostels
+
+The system shall allow users to filter hostels by:
+
+- Price range
+- Gender restriction
+- Room type
+- Amenities
+- Availability
+
+### FR-004: View Hostel Details
+
+The system shall display:
+
+- Hostel name
+- Description
+- Address
+- Distance from campus
+- Photos
+- Videos
+- Amenities
+- Rules
+- Room types
+- Prices
+- Availability
+
+### FR-005: Student Registration
+
+The system shall allow students to register using valid personal information.
+
+### FR-006: Authentication
+
+The system shall allow registered students and administrators to log in securely.
+
+### FR-007: Submit Booking Request
+
+The system shall allow an authenticated student to select a room type and submit a booking request.
+
+### FR-008: Booking Status
+
+A booking shall have one of the following statuses:
+
+- `PENDING`
+- `APPROVED`
+- `REJECTED`
+- `CANCELLED`
+
+### FR-009: Booking History
+
+The system shall allow students to view their booking history.
+
+### FR-010: Hostel Management
+
+The system shall allow administrators to create, update, publish, and hide hostel listings.
+
+### FR-011: Room Management
+
+The system shall allow administrators to manage room types, prices, quantities, and availability.
+
+### FR-012: Booking Management
+
+The system shall allow administrators to approve or reject booking requests.
+
+## 6. Initial Booking Workflow
+
+1. A student logs in.
+2. The student selects a hostel.
+3. The student selects a room type.
+4. The student submits a booking request.
+5. The booking receives a unique reference.
+6. The booking status becomes `PENDING`.
+7. An administrator checks availability.
+8. The administrator approves or rejects the request.
+9. The student sees the updated booking status.
+
+## 7. Non-Functional Requirements
+
+### Security
+
+- Passwords must never be stored as plain text.
+- Administrator pages must be protected.
+- Students must not access other students’ data.
+- Environment secrets must not be committed to GitHub.
+- Inputs must be validated on the frontend and backend.
+
+### Performance
+
+- Public pages should load quickly.
+- Images should be compressed and optimized.
+- Database queries should use appropriate indexes.
+- Hostel listings should support pagination as the platform grows.
+
+### Usability
+
+- The interface must be mobile-responsive.
+- Forms must display useful validation messages.
+- Navigation must be clear.
+- Important actions must provide visible feedback.
+
+### Accessibility
+
+- Images must include alternative text.
+- Forms must have labels.
+- Keyboard navigation must be supported.
+- Text must have readable colour contrast.
+
+### Reliability
+
+- Errors must be handled without crashing the application.
+- Booking records must not be lost.
+- Database relationships must be protected with constraints.
+- Important administrator actions should eventually be logged.
+
+### Maintainability
+
+- Frontend and backend responsibilities must remain separated.
+- Reusable logic must not be unnecessarily duplicated.
+- Important features must be documented.
+- Naming conventions must remain consistent.
+
+## 8. MVP Exclusions
+
+The MVP will not initially include:
+
+- Payment processing
+- Automatic refunds
+- Multiple universities
+- Hostel-owner dashboards
+- Reviews and ratings
+- Live chat
+- SMS notifications
+- Native mobile applications
+- AI recommendations
+
+## 9. Success Criteria
+
+The MVP is successful when:
+
+- Visitors can browse hostel listings.
+- Visitors can inspect room information and media.
+- Students can create accounts and submit booking requests.
+- Administrators can manage hostels and room types.
+- Administrators can approve or reject bookings.
+- Students can track their booking status.
+- The platform works on mobile and desktop devices.
+
+## 10. Pending Business Decisions
+
+- University name and location
+- Whether students book an entire room or a room type
+- Rental period: monthly, semester, session, or yearly
+- How hostel availability will be verified
+- Payment provider
+- Full payment versus deposit
+- Cancellation policy
+- Refund policy
+- Platform service fee
