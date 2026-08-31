@@ -6,19 +6,15 @@ A transparency-first rental-property platform designed to help property seekers 
 
 The project is under active development.
 
-Current milestone:
+Latest completed milestone:
 
-      text
-Public property catalogue backend implemented
-Documentation and Pull Request review in progress
+```text
+Public property catalogue backend implemented and merged into main through Pull Request #1
+```
 
-Current feature branch:
+The catalogue supports secure public property discovery, property details, pagination, validated filters, approximate locations, amenities and transparent rental fees.
 
-feature/public-property-catalogue
-
-The public catalogue feature has not yet been merged into main.
-
-Problem
+## Problem
 
 Property seekers commonly experience:
 
