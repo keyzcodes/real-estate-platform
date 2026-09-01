@@ -1,0 +1,62 @@
+name: Automated Tests
+
+on:
+  push:
+    branches:
+      - test/public-catalogue-api
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  application-tests:
+    name: Jest and Supertest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Run application tests
+        run: npm test
+
+  database-security-tests:
+    name: PostgreSQL and RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.115.0
+
+      - name: Disable development seed in CI
+        run: |
+          sed -i '/^\[db.seed\]/,/^\[/ s/^enabled = true$/enabled = false/' supabase/config.toml
+          grep -A 3 '^\[db.seed\]' supabase/config.toml
+
+      - name: Start temporary PostgreSQL database
+        run: supabase db start
+
+      - name: Run pgTAP database security tests
+        run: supabase test db
