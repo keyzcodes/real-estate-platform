@@ -110,3 +110,18 @@ The format follows the principles of [Keep a Changelog](https://keepachangelog.c
 No stable public release has been created yet.
 
 The public property catalogue remains under final documentation, regression testing, privacy testing and Pull Request review.
+
+#### Automated testing
+
+- Added Jest unit tests for public catalogue application logic.
+- Added Supertest coverage for public property API routes and controllers.
+- Added validation, response-contract and sanitised-error tests.
+- Added reusable recursive assertions that detect forbidden fields inside nested public responses.
+- Added service tests for property transformation and grouped starting prices.
+- Added 19 pgTAP assertions for catalogue permissions and structural database security.
+- Added eight pgTAP assertions for anonymous and authenticated RLS row visibility.
+- Added controlled property, location, unit and media test fixtures.
+- Added transactional rollback to prevent test fixtures from persisting.
+- Added GitHub Actions jobs for application and PostgreSQL security tests.
+- Added ADR-008 documenting the automated-testing strategy.
+- Merged the automated-testing foundation into `main` through Pull Request #3.
