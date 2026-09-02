@@ -240,8 +240,6 @@ async function getPublicPropertyBySlug(slug) {
           unit_id,
           media_type,
           media_category,
-          storage_provider,
-          storage_key,
           format,
           width_pixels,
           height_pixels,
