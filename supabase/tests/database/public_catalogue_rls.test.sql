@@ -23,6 +23,7 @@ values (
 
 -- ============================================================
 -- Controlled property fixtures
+-- All properties begin as drafts.
 -- ============================================================
 
 insert into public.properties (
@@ -50,7 +51,7 @@ values
     'Maiduguri',
     'Bolori',
     'verified',
-    'published'
+    'draft'
 ),
 (
     '91000000-0000-4000-8000-000000000002',
@@ -78,6 +79,37 @@ values
     'pending',
     'draft'
 );
+
+-- ============================================================
+-- Publication prerequisite
+-- A property needs a verified location before publication.
+-- ============================================================
+
+insert into public.property_locations (
+    property_id,
+    street_address,
+    exact_latitude,
+    exact_longitude,
+    location_source,
+    captured_at,
+    verified_at,
+    verified_by
+)
+values (
+    '91000000-0000-4000-8000-000000000001',
+    'RLS test address',
+    11.846500,
+    13.157100,
+    'manual',
+    now(),
+    now(),
+    '90000000-0000-4000-8000-000000000001'
+);
+
+-- Publish only after the verified location exists.
+update public.properties
+set publication_status = 'published'
+where id = '91000000-0000-4000-8000-000000000001';
 
 -- ============================================================
 -- Anonymous visitor assertions
@@ -131,10 +163,11 @@ select is(
 
 -- ============================================================
 -- Authenticated customer assertions
--- The public catalogue policy gives the same catalogue visibility.
+-- Public catalogue visibility is the same for this role.
 -- ============================================================
 
 reset role;
+
 set local role authenticated;
 
 select is(
