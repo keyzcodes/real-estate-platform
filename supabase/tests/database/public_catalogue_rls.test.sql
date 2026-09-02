@@ -105,8 +105,85 @@ values (
     now(),
     '90000000-0000-4000-8000-000000000001'
 );
+-- Add the unit required before publication.
+insert into public.property_units (
+    id,
+    property_id,
+    unit_name,
+    unit_type,
+    description,
+    bedrooms,
+    bathrooms,
+    maximum_occupants,
+    base_rent,
+    currency,
+    billing_period,
+    availability_status,
+    available_from
+)
+values (
+    '92000000-0000-4000-8000-000000000001',
+    '91000000-0000-4000-8000-000000000001',
+    'RLS Test Unit',
+    'self_contained',
+    'Controlled unit fixture for RLS testing.',
+    1,
+    1,
+    2,
+    300000,
+    'NGN',
+    'yearly',
+    'available',
+    current_date
+);
 
--- Publish only after the verified location exists.
+-- Add the approved cover image required before publication.
+insert into public.property_media (
+    id,
+    property_id,
+    unit_id,
+    uploaded_by,
+    media_type,
+    media_category,
+    storage_provider,
+    storage_key,
+    format,
+    file_size_bytes,
+    width_pixels,
+    height_pixels,
+    duration_seconds,
+    alt_text,
+    display_order,
+    is_cover,
+    verification_status,
+    captured_at,
+    verified_at,
+    verified_by
+)
+values (
+    '93000000-0000-4000-8000-000000000001',
+    '91000000-0000-4000-8000-000000000001',
+    null,
+    '90000000-0000-4000-8000-000000000001',
+    'image',
+    'exterior',
+    'cloudinary',
+    'tests/public-rls-cover',
+    'jpg',
+    1,
+    1200,
+    800,
+    null,
+    'Controlled cover-image fixture for RLS testing',
+    0,
+    true,
+    'approved',
+    now(),
+    now(),
+    '90000000-0000-4000-8000-000000000001'
+);
+
+-- Publish only after all publication prerequisites exist.
 update public.properties
 set publication_status = 'published'
 where id = '91000000-0000-4000-8000-000000000001';
