@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import PropertyCataloguePage from "./PropertyCataloguePage";
 import { getProperties } from "../api/propertyApi";
 
@@ -129,5 +134,106 @@ describe("PropertyCataloguePage", () => {
     expect(
       screen.queryByText("Demo Green View Residence")
     ).not.toBeInTheDocument();
+  });
+    test("submits the visitor's selected catalogue filters", async () => {
+    const user = userEvent.setup();
+
+    getProperties.mockResolvedValue({
+      properties: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+
+    render(<PropertyCataloguePage />);
+
+    await screen.findByRole("heading", {
+      name: "No properties found",
+    });
+
+    await user.type(
+      screen.getByRole("searchbox", {
+        name: "Location",
+      }),
+      "Maiduguri"
+    );
+
+    await user.selectOptions(
+      screen.getByRole("combobox", {
+        name: "Property type",
+      }),
+      "apartment_building"
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Search",
+      })
+    );
+
+    await waitFor(() => {
+      expect(getProperties).toHaveBeenCalledTimes(2);
+    });
+
+    expect(getProperties).toHaveBeenLastCalledWith(
+      {
+        page: 1,
+        limit: 12,
+        sort: "newest",
+        city: "Maiduguri",
+        propertyType: "apartment_building",
+      },
+      {
+        signal: expect.any(AbortSignal),
+      }
+    );
+  });
+    test("reloads the catalogue when the visitor changes sorting", async () => {
+    const user = userEvent.setup();
+
+    getProperties.mockResolvedValue({
+      properties: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+
+    render(<PropertyCataloguePage />);
+
+    await screen.findByRole("heading", {
+      name: "No properties found",
+    });
+
+    await user.selectOptions(
+      screen.getByRole("combobox", {
+        name: "Sort properties",
+      }),
+      "oldest"
+    );
+
+    await waitFor(() => {
+      expect(getProperties).toHaveBeenCalledTimes(2);
+    });
+
+    expect(getProperties).toHaveBeenLastCalledWith(
+      {
+        page: 1,
+        limit: 12,
+        sort: "oldest",
+      },
+      {
+        signal: expect.any(AbortSignal),
+      }
+    );
   });
 });
