@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getProperties } from "../api/propertyApi";
 
 function formatPropertyType(propertyType) {
@@ -76,6 +77,16 @@ function PropertyCard({ property }) {
           <p className="mt-2 text-sm text-stone-600">
             {formatPropertyType(property.propertyType)}
           </p>
+
+          <Link
+            to={`/properties/${property.slug}`}
+            className="mt-5 inline-flex items-center font-semibold text-kudu-green hover:underline"
+          >
+            View property details
+            <span className="ml-2" aria-hidden="true">
+              →
+            </span>
+          </Link>
         </div>
       </div>
     </article>
@@ -165,20 +176,20 @@ function PropertyCataloguePage() {
     <div className="min-h-screen bg-kudu-ivory text-stone-900">
       <header className="border-b border-black/10">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="text-2xl font-bold tracking-tight text-kudu-green"
           >
             Kudu
-          </a>
+          </Link>
 
           <nav aria-label="Primary navigation">
-            <a
-              href="/properties"
+            <Link
+              to="/properties"
               className="font-medium text-kudu-green hover:underline"
             >
               Browse properties
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -333,7 +344,8 @@ function PropertyCataloguePage() {
           {status === "success" && catalogue.properties.length > 0 && (
             <>
               <p className="mt-8 text-sm text-stone-600">
-                {catalogue.pagination?.totalItems ?? catalogue.properties.length}{" "}
+                {catalogue.pagination?.totalItems ??
+                  catalogue.properties.length}{" "}
                 verified{" "}
                 {(catalogue.pagination?.totalItems ??
                   catalogue.properties.length) === 1

@@ -5,6 +5,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import PropertyCataloguePage from "./PropertyCataloguePage";
 import { getProperties } from "../api/propertyApi";
 
@@ -40,6 +41,13 @@ const demonstrationProperty = {
   createdAt: "2026-08-25T23:00:21.06704+00:00",
   updatedAt: "2026-08-25T23:00:21.06704+00:00",
 };
+function renderCataloguePage() {
+  return render(
+    <MemoryRouter>
+      <PropertyCataloguePage />
+    </MemoryRouter>
+  );
+}
 
 describe("PropertyCataloguePage", () => {
   beforeEach(() => {
@@ -59,8 +67,8 @@ describe("PropertyCataloguePage", () => {
       },
     });
 
-    render(<PropertyCataloguePage />);
 
+renderCataloguePage();
     expect(
       screen.getByText("Loading verified properties…")
     ).toBeInTheDocument();
@@ -101,7 +109,7 @@ describe("PropertyCataloguePage", () => {
       },
     });
 
-    render(<PropertyCataloguePage />);
+    renderCataloguePage();
 
     expect(
       await screen.findByRole("heading", {
@@ -119,7 +127,7 @@ describe("PropertyCataloguePage", () => {
       new Error("Unable to connect to the property service.")
     );
 
-    render(<PropertyCataloguePage />);
+    renderCataloguePage();
 
     expect(
       await screen.findByRole("heading", {
@@ -150,7 +158,7 @@ describe("PropertyCataloguePage", () => {
       },
     });
 
-    render(<PropertyCataloguePage />);
+    renderCataloguePage();
 
     await screen.findByRole("heading", {
       name: "No properties found",
@@ -208,7 +216,7 @@ describe("PropertyCataloguePage", () => {
       },
     });
 
-    render(<PropertyCataloguePage />);
+    renderCataloguePage();
 
     await screen.findByRole("heading", {
       name: "No properties found",
