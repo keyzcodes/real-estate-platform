@@ -27,7 +27,7 @@ function PropertyCard({ property }) {
 
   return (
     <article className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      <div className="flex aspect-[16/10] items-center justify-center bg-kudu-green/10">
+      <div className="flex aspect-8/5 items-center justify-center bg-kudu-green/10">
         {property.coverMedia?.url ? (
           <img
             src={property.coverMedia.url}
