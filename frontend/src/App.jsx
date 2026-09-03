@@ -1,11 +1,13 @@
-import "./App.css";
+import { Navigate, Route, Routes } from "react-router-dom";
+import PropertyCataloguePage from "./pages/PropertyCataloguePage";
 
 function App() {
   return (
-    <main>
-      <h1>Real Estate Platform</h1>
-      <p>Find transparent and verified property listings.</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<PropertyCataloguePage />} />
+      <Route path="/properties" element={<PropertyCataloguePage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
