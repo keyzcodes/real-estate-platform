@@ -244,4 +244,95 @@ renderCataloguePage();
       }
     );
   });
+    test("requests the next catalogue page when Next is clicked", async () => {
+    const user = userEvent.setup();
+
+    Object.defineProperty(window, "scrollTo", {
+      value: vi.fn(),
+      writable: true,
+    });
+
+    const secondProperty = {
+      ...demonstrationProperty,
+      id: "10000000-0000-4000-8000-000000000002",
+      slug: "second-demonstration-property-10000000-000",
+      title: "Second Demonstration Property",
+      location: {
+        ...demonstrationProperty.location,
+        area: "Mairi",
+      },
+    };
+
+    getProperties
+      .mockResolvedValueOnce({
+        properties: [demonstrationProperty],
+        pagination: {
+          page: 1,
+          limit: 12,
+          totalItems: 2,
+          totalPages: 2,
+          hasNextPage: true,
+          hasPreviousPage: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        properties: [secondProperty],
+        pagination: {
+          page: 2,
+          limit: 12,
+          totalItems: 2,
+          totalPages: 2,
+          hasNextPage: false,
+          hasPreviousPage: true,
+        },
+      });
+
+    renderCataloguePage();
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Demo Green View Residence",
+      })
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Previous",
+      })
+    ).toBeDisabled();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Next",
+      })
+    );
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Second Demonstration Property",
+      })
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getProperties).toHaveBeenLastCalledWith(
+        {
+          page: 2,
+          limit: 12,
+          sort: "newest",
+        },
+        {
+          signal: expect.any(AbortSignal),
+        }
+      );
+    });
+
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
 });

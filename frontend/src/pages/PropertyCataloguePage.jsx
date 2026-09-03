@@ -172,6 +172,18 @@ function PropertyCataloguePage() {
     }));
   }
 
+  function handlePageChange(nextPage) {
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      page: nextPage,
+    }));
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
   return (
     <div className="min-h-screen bg-kudu-ivory text-stone-900">
       <header className="border-b border-black/10">
@@ -206,8 +218,8 @@ function PropertyCataloguePage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700">
-              Browse verified rental properties, compare transparent prices
-              and understand additional fees before making contact.
+              Browse verified rental properties, compare transparent prices and
+              understand additional fees before making contact.
             </p>
 
             <form
@@ -243,9 +255,7 @@ function PropertyCataloguePage() {
                 >
                   <option value="">All property types</option>
                   <option value="hostel">Hostel</option>
-                  <option value="apartment_building">
-                    Apartment building
-                  </option>
+                  <option value="apartment_building">Apartment building</option>
                   <option value="house">House</option>
                   <option value="duplex">Duplex</option>
                   <option value="bungalow">Bungalow</option>
@@ -358,6 +368,39 @@ function PropertyCataloguePage() {
                 {catalogue.properties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
+                {catalogue.pagination?.totalPages > 1 && (
+                  <nav
+                    className="mt-10 flex items-center justify-center gap-4"
+                    aria-label="Catalogue pagination"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handlePageChange(catalogue.pagination.page - 1)
+                      }
+                      disabled={!catalogue.pagination.hasPreviousPage}
+                      className="rounded-lg border border-kudu-green px-5 py-3 font-semibold text-kudu-green transition hover:bg-kudu-green hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Previous
+                    </button>
+
+                    <p className="text-sm text-stone-600" aria-live="polite">
+                      Page {catalogue.pagination.page} of{" "}
+                      {catalogue.pagination.totalPages}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handlePageChange(catalogue.pagination.page + 1)
+                      }
+                      disabled={!catalogue.pagination.hasNextPage}
+                      className="rounded-lg bg-kudu-green px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Next
+                    </button>
+                  </nav>
+                )}
               </div>
             </>
           )}
@@ -366,8 +409,8 @@ function PropertyCataloguePage() {
 
       <footer className="border-t border-black/10">
         <div className="mx-auto max-w-7xl px-5 py-8 text-sm text-stone-600 sm:px-8 lg:px-12">
-          Kudu helps property seekers discover verified rentals with
-          transparent pricing and privacy-conscious locations.
+          Kudu helps property seekers discover verified rentals with transparent
+          pricing and privacy-conscious locations.
         </div>
       </footer>
     </div>
