@@ -1,6 +1,32 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { getProperties } from "../api/propertyApi";
+
+const propertyTypes = new Set([
+  "hostel",
+  "apartment_building",
+  "house",
+  "duplex",
+  "bungalow",
+  "compound",
+]);
+
+function readCatalogueFilters(searchParams) {
+  const requestedPage = Number(searchParams.get("page"));
+  const requestedPropertyType = searchParams.get("propertyType");
+  const requestedSort = searchParams.get("sort");
+
+  return {
+    page:
+      Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1,
+    limit: 12,
+    city: searchParams.get("city")?.trim() || undefined,
+    propertyType: propertyTypes.has(requestedPropertyType)
+      ? requestedPropertyType
+      : undefined,
+    sort: requestedSort === "oldest" ? "oldest" : "newest",
+  };
+}
 
 function formatPropertyType(propertyType) {
   return propertyType
@@ -94,16 +120,15 @@ function PropertyCard({ property }) {
 }
 
 function PropertyCataloguePage() {
-  const [searchFields, setSearchFields] = useState({
-    city: "",
-    propertyType: "",
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryString = searchParams.toString();
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 12,
-    sort: "newest",
-  });
+  const filters = useMemo(
+    () => readCatalogueFilters(new URLSearchParams(queryString)),
+    [queryString],
+  );
+
+  const [retryCount, setRetryCount] = useState(0);
 
   const [catalogue, setCatalogue] = useState({
     properties: [],
@@ -142,41 +167,56 @@ function PropertyCataloguePage() {
     return () => {
       controller.abort();
     };
-  }, [filters]);
+  }, [filters, retryCount]);
 
-  function handleFieldChange(event) {
-    const { name, value } = event.target;
+  function updateUrlParameters(updates) {
+    const nextSearchParams = new URLSearchParams(searchParams);
 
-    setSearchFields((currentFields) => ({
-      ...currentFields,
-      [name]: value,
-    }));
+    for (const [key, value] of Object.entries(updates)) {
+      const isDefaultValue =
+        (key === "page" && value === 1) ||
+        (key === "sort" && value === "newest");
+
+      if (
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        isDefaultValue
+      ) {
+        nextSearchParams.delete(key);
+      } else {
+        nextSearchParams.set(key, String(value));
+      }
+    }
+
+    setSearchParams(nextSearchParams);
   }
 
   function handleSearch(event) {
     event.preventDefault();
 
-    setFilters((currentFilters) => ({
-      ...currentFilters,
-      city: searchFields.city.trim() || undefined,
-      propertyType: searchFields.propertyType || undefined,
+    const formData = new FormData(event.currentTarget);
+    const city = String(formData.get("city") || "").trim();
+    const propertyType = String(formData.get("propertyType") || "");
+
+    updateUrlParameters({
+      city,
+      propertyType,
       page: 1,
-    }));
+    });
   }
 
   function handleSortChange(event) {
-    setFilters((currentFilters) => ({
-      ...currentFilters,
+    updateUrlParameters({
       sort: event.target.value,
       page: 1,
-    }));
+    });
   }
 
   function handlePageChange(nextPage) {
-    setFilters((currentFilters) => ({
-      ...currentFilters,
+    updateUrlParameters({
       page: nextPage,
-    }));
+    });
 
     window.scrollTo({
       top: 0,
@@ -223,6 +263,7 @@ function PropertyCataloguePage() {
             </p>
 
             <form
+              key={`${filters.city || ""}:${filters.propertyType || ""}`}
               onSubmit={handleSearch}
               className="mt-10 grid max-w-4xl gap-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm sm:grid-cols-[1fr_1fr_auto]"
               aria-label="Property search"
@@ -235,8 +276,7 @@ function PropertyCataloguePage() {
                 <input
                   type="search"
                   name="city"
-                  value={searchFields.city}
-                  onChange={handleFieldChange}
+                  defaultValue={filters.city || ""}
                   placeholder="Search by city"
                   className="min-h-12 rounded-lg border border-black/20 bg-white px-4 text-stone-900 outline-none transition focus:border-kudu-green"
                 />
@@ -249,8 +289,7 @@ function PropertyCataloguePage() {
 
                 <select
                   name="propertyType"
-                  value={searchFields.propertyType}
-                  onChange={handleFieldChange}
+                  defaultValue={filters.propertyType || ""}
                   className="min-h-12 rounded-lg border border-black/20 bg-white px-4 text-stone-900 outline-none transition focus:border-kudu-green"
                 >
                   <option value="">All property types</option>
@@ -331,7 +370,9 @@ function PropertyCataloguePage() {
 
               <button
                 type="button"
-                onClick={() => setFilters((current) => ({ ...current }))}
+                onClick={() =>
+                  setRetryCount((currentCount) => currentCount + 1)
+                }
                 className="mt-6 rounded-lg bg-kudu-green px-5 py-3 font-semibold text-white"
               >
                 Try again
@@ -368,40 +409,41 @@ function PropertyCataloguePage() {
                 {catalogue.properties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
-                {catalogue.pagination?.totalPages > 1 && (
-                  <nav
-                    className="mt-10 flex items-center justify-center gap-4"
-                    aria-label="Catalogue pagination"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handlePageChange(catalogue.pagination.page - 1)
-                      }
-                      disabled={!catalogue.pagination.hasPreviousPage}
-                      className="rounded-lg border border-kudu-green px-5 py-3 font-semibold text-kudu-green transition hover:bg-kudu-green hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      Previous
-                    </button>
-
-                    <p className="text-sm text-stone-600" aria-live="polite">
-                      Page {catalogue.pagination.page} of{" "}
-                      {catalogue.pagination.totalPages}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handlePageChange(catalogue.pagination.page + 1)
-                      }
-                      disabled={!catalogue.pagination.hasNextPage}
-                      className="rounded-lg bg-kudu-green px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      Next
-                    </button>
-                  </nav>
-                )}
               </div>
+
+              {catalogue.pagination?.totalPages > 1 && (
+                <nav
+                  className="mt-10 flex items-center justify-center gap-4"
+                  aria-label="Catalogue pagination"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handlePageChange(catalogue.pagination.page - 1)
+                    }
+                    disabled={!catalogue.pagination.hasPreviousPage}
+                    className="rounded-lg border border-kudu-green px-5 py-3 font-semibold text-kudu-green transition hover:bg-kudu-green hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+
+                  <p className="text-sm text-stone-600" aria-live="polite">
+                    Page {catalogue.pagination.page} of{" "}
+                    {catalogue.pagination.totalPages}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handlePageChange(catalogue.pagination.page + 1)
+                    }
+                    disabled={!catalogue.pagination.hasNextPage}
+                    className="rounded-lg bg-kudu-green px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </nav>
+              )}
             </>
           )}
         </section>
@@ -418,3 +460,4 @@ function PropertyCataloguePage() {
 }
 
 export default PropertyCataloguePage;
+

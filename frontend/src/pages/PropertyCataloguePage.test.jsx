@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import {
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import PropertyCataloguePage from "./PropertyCataloguePage";
 import { getProperties } from "../api/propertyApi";
 
@@ -41,11 +37,23 @@ const demonstrationProperty = {
   createdAt: "2026-08-25T23:00:21.06704+00:00",
   updatedAt: "2026-08-25T23:00:21.06704+00:00",
 };
-function renderCataloguePage() {
+function CurrentLocation() {
+  const location = useLocation();
+
+  return (
+    <output data-testid="current-location">
+      {location.pathname}
+      {location.search}
+    </output>
+  );
+}
+
+function renderCataloguePage(initialEntry = "/properties") {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <PropertyCataloguePage />
-    </MemoryRouter>
+      <CurrentLocation />
+    </MemoryRouter>,
   );
 }
 
@@ -67,23 +75,24 @@ describe("PropertyCataloguePage", () => {
       },
     });
 
+    renderCataloguePage();
 
-renderCataloguePage();
-    expect(
-      screen.getByText("Loading verified properties…")
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Loading verified properties/)).toBeInTheDocument();
 
     expect(
       await screen.findByRole("heading", {
         name: "Demo Green View Residence",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(screen.getByText("Bolori, Maiduguri, Borno")).toBeInTheDocument();
-    expect(screen.getByText("₦300,000 / yearly")).toBeInTheDocument();
+
+    expect(screen.getByText(/300,000 \/ yearly/)).toBeInTheDocument();
+
     expect(screen.getByText("1 unit available")).toBeInTheDocument();
 
     expect(getProperties).toHaveBeenCalledOnce();
+
     expect(getProperties).toHaveBeenCalledWith(
       {
         page: 1,
@@ -92,8 +101,59 @@ renderCataloguePage();
       },
       {
         signal: expect.any(AbortSignal),
-      }
+      },
     );
+  });
+
+  test("loads catalogue filters from the URL", async () => {
+    getProperties.mockResolvedValue({
+      properties: [],
+      pagination: {
+        page: 2,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: true,
+      },
+    });
+
+    renderCataloguePage(
+      "/properties?city=Maiduguri&propertyType=house&sort=oldest&page=2",
+    );
+
+    await waitFor(() => {
+      expect(getProperties).toHaveBeenCalledWith(
+        {
+          page: 2,
+          limit: 12,
+          city: "Maiduguri",
+          propertyType: "house",
+          sort: "oldest",
+        },
+        {
+          signal: expect.any(AbortSignal),
+        },
+      );
+    });
+
+    expect(
+      screen.getByRole("searchbox", {
+        name: "Location",
+      }),
+    ).toHaveValue("Maiduguri");
+
+    expect(
+      screen.getByRole("combobox", {
+        name: "Property type",
+      }),
+    ).toHaveValue("house");
+
+    expect(
+      screen.getByRole("combobox", {
+        name: "Sort properties",
+      }),
+    ).toHaveValue("oldest");
   });
 
   test("displays a helpful empty state", async () => {
@@ -114,17 +174,17 @@ renderCataloguePage();
     expect(
       await screen.findByRole("heading", {
         name: "No properties found",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Try another city or property type.")
+      screen.getByText("Try another city or property type."),
     ).toBeInTheDocument();
   });
 
   test("displays a safe error message when loading fails", async () => {
     getProperties.mockRejectedValue(
-      new Error("Unable to connect to the property service.")
+      new Error("Unable to connect to the property service."),
     );
 
     renderCataloguePage();
@@ -132,18 +192,18 @@ renderCataloguePage();
     expect(
       await screen.findByRole("heading", {
         name: "We couldn’t load the properties",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Unable to connect to the property service.")
+      screen.getByText("Unable to connect to the property service."),
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByText("Demo Green View Residence")
+      screen.queryByText("Demo Green View Residence"),
     ).not.toBeInTheDocument();
   });
-    test("submits the visitor's selected catalogue filters", async () => {
+  test("submits the visitor's selected catalogue filters", async () => {
     const user = userEvent.setup();
 
     getProperties.mockResolvedValue({
@@ -168,20 +228,20 @@ renderCataloguePage();
       screen.getByRole("searchbox", {
         name: "Location",
       }),
-      "Maiduguri"
+      "Maiduguri",
     );
 
     await user.selectOptions(
       screen.getByRole("combobox", {
         name: "Property type",
       }),
-      "apartment_building"
+      "apartment_building",
     );
 
     await user.click(
       screen.getByRole("button", {
         name: "Search",
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -198,10 +258,13 @@ renderCataloguePage();
       },
       {
         signal: expect.any(AbortSignal),
-      }
+      },
+    );
+    expect(screen.getByTestId("current-location")).toHaveTextContent(
+      "/properties?city=Maiduguri&propertyType=apartment_building",
     );
   });
-    test("reloads the catalogue when the visitor changes sorting", async () => {
+  test("reloads the catalogue when the visitor changes sorting", async () => {
     const user = userEvent.setup();
 
     getProperties.mockResolvedValue({
@@ -226,7 +289,7 @@ renderCataloguePage();
       screen.getByRole("combobox", {
         name: "Sort properties",
       }),
-      "oldest"
+      "oldest",
     );
 
     await waitFor(() => {
@@ -241,10 +304,13 @@ renderCataloguePage();
       },
       {
         signal: expect.any(AbortSignal),
-      }
+      },
+    );
+    expect(screen.getByTestId("current-location")).toHaveTextContent(
+      "/properties?sort=oldest",
     );
   });
-    test("requests the next catalogue page when Next is clicked", async () => {
+  test("requests the next catalogue page when Next is clicked", async () => {
     const user = userEvent.setup();
 
     Object.defineProperty(window, "scrollTo", {
@@ -292,7 +358,7 @@ renderCataloguePage();
     expect(
       await screen.findByRole("heading", {
         name: "Demo Green View Residence",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
@@ -300,19 +366,19 @@ renderCataloguePage();
     expect(
       screen.getByRole("button", {
         name: "Previous",
-      })
+      }),
     ).toBeDisabled();
 
     await user.click(
       screen.getByRole("button", {
         name: "Next",
-      })
+      }),
     );
 
     expect(
       await screen.findByRole("heading", {
         name: "Second Demonstration Property",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
@@ -326,9 +392,12 @@ renderCataloguePage();
         },
         {
           signal: expect.any(AbortSignal),
-        }
+        },
       );
     });
+    expect(screen.getByTestId("current-location")).toHaveTextContent(
+      "/properties?page=2",
+    );
 
     expect(window.scrollTo).toHaveBeenCalledWith({
       top: 0,
