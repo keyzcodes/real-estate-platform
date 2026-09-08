@@ -319,7 +319,7 @@ The interface must not imply that an approximate location is an exact address.
 | S3-029 | Review keyboard navigation and accessibility         | Done        |
 | S3-030 | Configure frontend automated testing                 | Done        |
 | S3-031 | Add component tests                                  | Done        |
-| S3-032 | Add API-integration tests                            | In Progress |
+| S3-032 | Add API-integration tests                            | Done        |
 | S3-033 | Run application regression tests                     | In Progress |
 | S3-034 | Update frontend and API documentation                | To Do       |
 | S3-035 | Review the complete branch diff                      | To Do       |
@@ -544,7 +544,7 @@ Sprint 3 will be complete when:
 - [x] The responsive interface has completed final review.
 - [x] Basic accessibility checks pass.
 - [x] Frontend component tests pass.
-- [ ] Frontend integration tests pass.
+- [x] Frontend integration tests pass.
 - [ ] Existing backend tests have been reconfirmed.
 - [ ] Existing PostgreSQL and RLS tests have been reconfirmed.
 - [ ] Final documentation is updated.
