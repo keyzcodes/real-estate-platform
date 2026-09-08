@@ -310,7 +310,7 @@ describe("PropertyCataloguePage", () => {
       "/properties?sort=oldest",
     );
   });
-  test("requests the next catalogue page when Next is clicked", async () => {
+  test("supports keyboard pagination and requests the next catalogue page", async () => {
     const user = userEvent.setup();
 
     Object.defineProperty(window, "scrollTo", {
@@ -361,19 +361,28 @@ describe("PropertyCataloguePage", () => {
       }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    const pagination = screen.getByRole("navigation", {
+      name: "Catalogue pagination",
+    });
+    expect(pagination).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Previous",
-      }),
-    ).toBeDisabled();
+    const pageStatus = screen.getByText("Page 1 of 2");
+    expect(pageStatus).toHaveAttribute("aria-live", "polite");
 
-    await user.click(
-      screen.getByRole("button", {
-        name: "Next",
-      }),
-    );
+    const previousButton = screen.getByRole("button", {
+      name: "Previous",
+    });
+    const nextButton = screen.getByRole("button", {
+      name: "Next",
+    });
+
+    expect(previousButton).toBeDisabled();
+    expect(nextButton).toBeEnabled();
+
+    nextButton.focus();
+    expect(nextButton).toHaveFocus();
+
+    await user.keyboard("{Enter}");
 
     expect(
       await screen.findByRole("heading", {
@@ -382,6 +391,17 @@ describe("PropertyCataloguePage", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Previous",
+      }),
+    ).toBeEnabled();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Next",
+      }),
+    ).toBeDisabled();
 
     await waitFor(() => {
       expect(getProperties).toHaveBeenLastCalledWith(

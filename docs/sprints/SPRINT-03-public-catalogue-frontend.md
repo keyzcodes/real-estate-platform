@@ -315,8 +315,8 @@ The interface must not imply that an approximate location is an exact address.
 | S3-025 | Implement empty states                               | Done        |
 | S3-026 | Implement API error and retry states                 | Done        |
 | S3-027 | Implement the property-not-found state               | Done        |
-| S3-028 | Implement responsive layouts                         | In Progress |
-| S3-029 | Review keyboard navigation and accessibility         | In Progress |
+| S3-028 | Implement responsive layouts                         | Done        |
+| S3-029 | Review keyboard navigation and accessibility         | Done        |
 | S3-030 | Configure frontend automated testing                 | Done        |
 | S3-031 | Add component tests                                  | Done        |
 | S3-032 | Add API-integration tests                            | In Progress |
@@ -541,8 +541,8 @@ Sprint 3 will be complete when:
 - [x] Empty states work.
 - [x] Error and retry states work.
 - [x] Property-not-found handling works.
-- [ ] The responsive interface has completed final review.
-- [ ] Basic accessibility checks pass.
+- [x] The responsive interface has completed final review.
+- [x] Basic accessibility checks pass.
 - [x] Frontend component tests pass.
 - [ ] Frontend integration tests pass.
 - [ ] Existing backend tests have been reconfirmed.
