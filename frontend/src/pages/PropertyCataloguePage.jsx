@@ -460,4 +460,3 @@ function PropertyCataloguePage() {
 }
 
 export default PropertyCataloguePage;
-

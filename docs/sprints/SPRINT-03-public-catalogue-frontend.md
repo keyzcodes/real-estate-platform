@@ -304,7 +304,7 @@ The interface must not imply that an approximate location is an exact address.
 | S3-014 | Build supported filter controls                      | Done        |
 | S3-015 | Build newest and oldest sorting controls             | Done        |
 | S3-016 | Build pagination controls                            | Done        |
-| S3-017 | Synchronize catalogue state with URL parameters      | To Do       |
+| S3-017 | Synchronize catalogue state with URL parameters      | Done        |
 | S3-018 | Build the property-detail page                       | Done        |
 | S3-019 | Display property-level amenities                     | Done        |
 | S3-020 | Display property units                               | Done        |
@@ -532,7 +532,7 @@ Sprint 3 will be complete when:
 - [x] Supported filters work.
 - [x] Sorting works.
 - [x] Pagination works.
-- [ ] Catalogue state is reflected in the URL.
+- [x] Catalogue state is reflected in the URL.
 - [x] The property-detail page works.
 - [x] Base rent and additional fees remain separate.
 - [ ] Property and unit amenities are completely displayed.
