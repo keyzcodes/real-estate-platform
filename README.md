@@ -14,9 +14,13 @@ Sprint 1 closeout documentation merged through Pull Request #2
 Automated public catalogue testing foundation merged through Pull Request #3
 ```
 
+Current milestone:
+
+The Sprint 3 public catalogue frontend is implemented on `feature/public-catalogue-frontend` and has passed the complete frontend, backend and database regression suite. It is awaiting branch review, Pull Request review and merge into `main`.
+
 The catalogue supports secure public property discovery, property details, pagination, validated filters, approximate locations, amenities and transparent rental fees.
 
-Automated coverage now protects the catalogue through Jest unit tests, Supertest API tests, recursive privacy-contract assertions, PostgreSQL pgTAP tests, Row Level Security visibility tests and GitHub Actions.
+Automated coverage now protects the catalogue through Vitest frontend tests, React Testing Library interaction tests, frontend API-client tests, Jest unit tests, Supertest API tests, recursive privacy-contract assertions, PostgreSQL pgTAP tests, Row Level Security visibility tests and GitHub Actions.
 
 ## Problem
 
@@ -106,8 +110,30 @@ The first release focuses on property discovery around UNIMAID and Maiduguri whi
 - Safe public-data projection
 - Privacy protection for exact locations and provider information
 
+### Public Catalogue Frontend
+
+- Public catalogue route at `/properties`
+- Property-detail route at `/properties/:slug`
+- Reusable property cards
+- Approximate-location presentation
+- Starting prices grouped by currency and billing period
+- City and property-type filter controls
+- Newest and oldest sorting
+- Pagination controls
+- Catalogue state synchronized with URL parameters
+- Property and unit amenity presentation
+- Base rent displayed separately from additional fees
+- Intentional placeholders for unavailable media
+- Loading, empty, retry and property-not-found states
+- Responsive mobile, tablet and desktop layouts
+- Semantic labels, visible focus indicators and keyboard interaction
+
 ### Automated Testing
 
+- Vitest and React Testing Library component and interaction tests
+- Frontend API-client tests covering requests, query parameters and controlled errors
+- Keyboard-pagination interaction tests
+- ESLint validation and Vite production-build checks
 - Jest unit tests
 - Supertest API tests
 - Validation and error-response tests
@@ -119,9 +145,9 @@ The first release focuses on property discovery around UNIMAID and Maiduguri whi
 - Anonymous and authenticated row-visibility tests
 - Controlled database fixtures
 - Transactional fixture rollback
-- GitHub Actions continuous integration
+- GitHub Actions continuous integration for frontend, backend and database checks
 
-The automated-testing foundation was reviewed and merged through Pull Request #3.
+The original automated-testing foundation was reviewed and merged through Pull Request #3. Sprint 3 extends it with frontend component, API-client, lint and production-build checks.
 
 ## Current API Endpoints
 
@@ -251,7 +277,19 @@ Public endpoints must not use unrestricted `SELECT *` queries.
 
 ## Automated Testing
 
-### Application tests
+### Frontend tests
+
+From the project root:
+
+```powershell
+npm --prefix frontend test
+npm --prefix frontend run lint
+npm --prefix frontend run build
+```
+
+The frontend suite contains 18 Vitest tests across three test files. It covers catalogue and property-detail rendering, URL synchronization, filtering, sorting, pagination, keyboard interaction, controlled states and the frontend API client.
+
+### Backend application tests
 
 From the project root:
 
@@ -290,13 +328,23 @@ The current workstation does not provide the required local container environmen
 
 Automated tests must never connect to or modify the production database.
 
+### Continuous integration
+
+The GitHub Actions workflow runs three independent jobs:
+
+- Frontend tests, lint and production build
+- Backend Jest and Supertest tests
+- PostgreSQL and RLS tests against a disposable Supabase environment
+
+Pull Requests targeting `main` must pass the automated checks before merging.
+
 ## Technology Stack
 
 ### Frontend
 
 - React
 - Vite
-- CSS
+- Tailwind CSS
 - React Router
 
 ### Backend
@@ -316,6 +364,9 @@ Automated tests must never connect to or modify the production database.
 
 ### Testing
 
+- Vitest
+- React Testing Library
+- jsdom
 - Jest
 - Supertest
 - pgTAP
@@ -328,6 +379,8 @@ Automated tests must never connect to or modify the production database.
 - Supabase CLI
 - Nodemon
 - PowerShell
+- ESLint
+- Chrome Lighthouse
 
 ### Planned External Services
 
@@ -440,9 +493,16 @@ From the project root:
 
 ```powershell
 cd frontend
+Copy-Item ".env.example" ".env"
 npm install
 npm run dev
 ```
+
+The frontend reads `VITE_API_BASE_URL` from `frontend/.env`. The supplied example points to `http://localhost:5000/api/v1`.
+
+If the variable is omitted, the frontend API client uses the same local URL as its development fallback.
+
+Variables beginning with `VITE_` are exposed to browser code. Supabase service-role keys and other private credentials must never be stored in the frontend environment file.
 
 Use the URL displayed by Vite.
 
@@ -540,7 +600,6 @@ Do not merge an incomplete, failing or unreviewed feature directly into `main`.
 
 The project does not yet include:
 
-- Completed public catalogue frontend
 - Cloudinary media delivery URLs
 - Google Maps integration
 - Provider onboarding
@@ -556,13 +615,11 @@ The project does not yet include:
 
 ### Next
 
-- Complete and merge the Sprint 2 closeout documentation
-- Define the Sprint 3 frontend catalogue requirements
-- Design public property cards and property-detail pages
-- Connect the React frontend to the Express catalogue API
-- Implement loading, empty and error states
-- Add frontend component and integration tests
-- Maintain responsive and accessible layouts
+- Review the complete Sprint 3 feature-branch diff
+- Open and review the Sprint 3 Pull Request
+- Merge the verified public catalogue frontend into `main`
+- Complete the Sprint 3 review and retrospective
+- Define the next MVP sprint and remaining pilot-readiness work
 
 ### Later
 

@@ -6,12 +6,11 @@ Real Estate Platform
 
 ## Status
 
-Implemented on:
+Implemented and verified.
 
-```text
-feature/public-property-catalogue
+The Express public catalogue API is covered by automated application, privacy and database-security tests.
 
-The feature remains under documentation and Pull Request review and has not yet been merged into main.
+The React catalogue consumes this API on `feature/public-catalogue-frontend`. Sprint 3 is awaiting branch and Pull Request review and has not yet been merged into `main`.
 
 Purpose
 
@@ -532,7 +531,6 @@ Rent-based sorting
 Cloudinary media URLs
 Public virtual-tour endpoints
 Google Maps integration
-Automated API tests
 
 These features must not be advertised as implemented until their code, database permissions, tests and documentation are complete.
 
@@ -548,5 +546,4 @@ Stable secondary sorting
 Signed or transformed Cloudinary delivery URLs
 Approved virtual-tour retrieval
 Map-based catalogue browsing
-Automated integration and privacy tests
-```
+Browser end-to-end tests

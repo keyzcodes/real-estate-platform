@@ -320,8 +320,8 @@ The interface must not imply that an approximate location is an exact address.
 | S3-030 | Configure frontend automated testing                 | Done        |
 | S3-031 | Add component tests                                  | Done        |
 | S3-032 | Add API-integration tests                            | Done        |
-| S3-033 | Run application regression tests                     | In Progress |
-| S3-034 | Update frontend and API documentation                | To Do       |
+| S3-033 | Run application regression tests                     | Done        |
+| S3-034 | Update frontend and API documentation                | Done        |
 | S3-035 | Review the complete branch diff                      | To Do       |
 | S3-036 | Open and review the Sprint 3 Pull Request            | To Do       |
 | S3-037 | Merge the frontend catalogue into `main`             | To Do       |
@@ -346,9 +346,10 @@ Frontend tests should confirm:
 - Key interactions work with the keyboard.
 
 Backend and database tests must continue passing throughout Sprint 3.
-## Implementation Progress — 3 September 2026
 
-### Completed Today
+## Implementation Progress — 8 September 2026
+
+### Completed in Sprint 3
 
 - Built the first visible Kudu public catalogue interface.
 - Connected the React frontend to the Express public catalogue API.
@@ -357,30 +358,45 @@ Backend and database tests must continue passing throughout Sprint 3.
 - Added supported city and property-type filters.
 - Added newest and oldest sorting.
 - Added catalogue pagination controls.
+- Synchronized catalogue filters, sorting and pagination with URL parameters.
 - Built the public property-detail page.
 - Added property-level amenities.
+- Added unit-level amenities and a clear fallback when none are listed.
 - Added unit information, base rent and separately disclosed fees.
 - Added intentional placeholders for unavailable media.
 - Added loading, empty, API-error, retry and property-not-found states.
 - Added client-side navigation using React Router.
 - Added responsive layouts for mobile, tablet and desktop widths.
 - Added automated component and interaction tests using Vitest and React Testing Library.
+- Added frontend API-client tests covering requests, query parameters and controlled errors.
+- Completed keyboard, responsive and Chrome Lighthouse accessibility reviews.
+- Extended GitHub Actions to run frontend tests, lint and the production build alongside backend and database jobs.
 
 ### Automated Test Evidence
 
-The frontend currently has nine passing tests across two test files.
+The frontend has 18 passing Vitest tests across three test files:
 
-The tests cover:
+- `frontend/src/pages/PropertyCataloguePage.test.jsx`: seven tests
+- `frontend/src/pages/PropertyDetailPage.test.jsx`: four tests
+- `frontend/src/api/propertyApi.test.js`: seven tests
 
-- Successful catalogue loading
-- Empty catalogue responses
-- Controlled catalogue errors
-- Filter submission
-- Sorting changes
-- Pagination and page-two requests
-- Successful property-detail rendering
-- Privacy-preserving property-not-found responses
-- Controlled property-detail errors
+The frontend tests cover:
+
+- Successful catalogue and property-detail rendering
+- Loading, empty, controlled-error, retry and not-found states
+- Filter submission and loading catalogue filters from the URL
+- Sorting, pagination and URL synchronization
+- Keyboard-operated pagination and disabled-button states
+- Property-level and unit-level amenities, including the empty fallback
+- Separate base-rent and additional-fee presentation
+- API-client query construction, Fetch requests, encoded slugs and controlled failures
+- Privacy-preserving public responses
+
+The backend has eight passing Jest and Supertest tests across three test suites.
+
+The database suite has 27 passing pgTAP assertions: eight RLS-visibility assertions and 19 structural security assertions.
+
+GitHub Actions independently completed three green jobs for the frontend, backend and disposable PostgreSQL test environment on `feature/public-catalogue-frontend`.
 
 Frontend linting and the Vite production build also pass.
 
@@ -395,8 +411,16 @@ The following journey was verified manually:
 3. View the property card.
 4. Open the property-detail route.
 5. Review the general location and property amenities.
-6. Review units, base rent and separate fees.
+6. Review unit amenities, base rent and separate fees.
 7. Return to the catalogue using client-side navigation.
+8. Apply catalogue filters and sorting and confirm that the URL parameters update.
+9. Review the catalogue and property-detail pages at mobile, tablet and desktop widths.
+10. Navigate the available links and form controls using the keyboard and confirm visible focus indicators.
+11. Run Chrome Lighthouse against the catalogue and property-detail pages in mobile and desktop modes.
+
+The demonstration data currently produces only one catalogue page, so live two-page pagination could not be exercised manually. The automated pagination test supplies controlled page-one and page-two responses and verifies the request, URL update, keyboard activation and disabled-button states.
+
+Chrome Lighthouse accessibility checks passed on the catalogue and property-detail pages in mobile and desktop modes. The reviewed pages also received a Best Practices score of 100.
 
 ### Problems Encountered and Resolutions
 
@@ -545,9 +569,9 @@ Sprint 3 will be complete when:
 - [x] Basic accessibility checks pass.
 - [x] Frontend component tests pass.
 - [x] Frontend integration tests pass.
-- [ ] Existing backend tests have been reconfirmed.
-- [ ] Existing PostgreSQL and RLS tests have been reconfirmed.
-- [ ] Final documentation is updated.
+- [x] Existing backend tests have been reconfirmed.
+- [x] Existing PostgreSQL and RLS tests have been reconfirmed.
+- [x] Final documentation is updated.
 - [ ] The branch is reviewed through a Pull Request.
 - [ ] The feature is merged into `main`.
 - [ ] The sprint review and retrospective are completed.
