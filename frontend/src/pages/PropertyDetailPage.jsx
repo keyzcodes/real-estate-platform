@@ -300,7 +300,26 @@ function PropertyDetailPage() {
                       / {unit.baseRent.billingPeriod}
                     </p>
                   </div>
+                  <div className="mt-6">
+                    <h4 className="font-semibold">Unit amenities</h4>
 
+                    {unit.amenities?.length > 0 ? (
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {unit.amenities.map((amenity) => (
+                          <li
+                            key={amenity.id}
+                            className="rounded-full border border-kudu-green/20 bg-kudu-ivory px-3 py-2 text-sm font-medium"
+                          >
+                            {amenity.name}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-sm text-stone-600">
+                        No unit amenities have been listed.
+                      </p>
+                    )}
+                  </div>
                   <div className="mt-6">
                     <h4 className="font-semibold">Additional fees</h4>
 

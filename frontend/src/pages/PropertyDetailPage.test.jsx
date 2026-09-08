@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import {
-  MemoryRouter,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import PropertyDetailPage from "./PropertyDetailPage";
 import { getPropertyBySlug } from "../api/propertyApi";
 
@@ -69,7 +65,16 @@ const property = {
           isRefundable: true,
         },
       ],
-      amenities: [],
+      amenities: [
+        {
+          id: "amenity-2",
+          name: "Private Bathroom",
+          slug: "private-bathroom",
+          category: "sanitation",
+          description: "A private bathroom is included in this unit.",
+          allowedScope: "unit",
+        },
+      ],
     },
   ],
   media: [],
@@ -80,17 +85,12 @@ const property = {
 function renderPropertyDetailPage() {
   return render(
     <MemoryRouter
-      initialEntries={[
-        "/properties/demo-green-view-residence-10000000-000",
-      ]}
+      initialEntries={["/properties/demo-green-view-residence-10000000-000"]}
     >
       <Routes>
-        <Route
-          path="/properties/:slug"
-          element={<PropertyDetailPage />}
-        />
+        <Route path="/properties/:slug" element={<PropertyDetailPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -104,29 +104,32 @@ describe("PropertyDetailPage", () => {
 
     renderPropertyDetailPage();
 
-    expect(
-      screen.getByText("Loading property details…")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Loading property details…")).toBeInTheDocument();
 
     expect(
-  await screen.findByRole("heading", {
-    name: "Demo Green View Residence",
-  })
-).toBeInTheDocument();
+      await screen.findByRole("heading", {
+        name: "Demo Green View Residence",
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Bolori, Maiduguri, Borno")).toBeInTheDocument();
     expect(screen.getByText("Running Water")).toBeInTheDocument();
     expect(screen.getByText("Room A12")).toBeInTheDocument();
-    expect(screen.getByText("₦300,000 / yearly")).toBeInTheDocument();
     expect(
-      screen.getByText("Refundable caution deposit")
+      screen.getByRole("heading", {
+        name: "Unit amenities",
+      }),
     ).toBeInTheDocument();
+
+    expect(screen.getByText("Private Bathroom")).toBeInTheDocument();
+    expect(screen.getByText("₦300,000 / yearly")).toBeInTheDocument();
+    expect(screen.getByText("Refundable caution deposit")).toBeInTheDocument();
     expect(screen.getByText("₦30,000")).toBeInTheDocument();
     expect(
-      screen.getByText("One Time · Mandatory · Refundable")
+      screen.getByText("One Time · Mandatory · Refundable"),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText(/exact address and coordinates remain protected/i)
+      screen.getByText(/exact address and coordinates remain protected/i),
     ).toBeInTheDocument();
 
     expect(screen.queryByText("Exact street address")).not.toBeInTheDocument();
@@ -136,16 +139,33 @@ describe("PropertyDetailPage", () => {
       "demo-green-view-residence-10000000-000",
       {
         signal: expect.any(AbortSignal),
-      }
+      },
     );
   });
 
+  test("displays a clear message when unit amenities are not listed", async () => {
+    const propertyWithoutUnitAmenities = {
+      ...property,
+      units: property.units.map((unit) => ({
+        ...unit,
+        amenities: [],
+      })),
+    };
+
+    getPropertyBySlug.mockResolvedValue(propertyWithoutUnitAmenities);
+
+    renderPropertyDetailPage();
+
+    expect(
+      await screen.findByText("No unit amenities have been listed."),
+    ).toBeInTheDocument();
+  });
   test("displays a privacy-preserving not-found state", async () => {
     const notFoundError = Object.assign(
       new Error("The requested property was not found."),
       {
         status: 404,
-      }
+      },
     );
 
     getPropertyBySlug.mockRejectedValue(notFoundError);
@@ -155,23 +175,21 @@ describe("PropertyDetailPage", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Property not found",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText(
-        /unavailable or is not published for public viewing/i
-      )
+      screen.getByText(/unavailable or is not published for public viewing/i),
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByText("Demo Green View Residence")
+      screen.queryByText("Demo Green View Residence"),
     ).not.toBeInTheDocument();
   });
 
   test("displays a controlled error when the request fails", async () => {
     getPropertyBySlug.mockRejectedValue(
-      new Error("Unable to connect to the property service.")
+      new Error("Unable to connect to the property service."),
     );
 
     renderPropertyDetailPage();
@@ -179,17 +197,17 @@ describe("PropertyDetailPage", () => {
     expect(
       await screen.findByRole("heading", {
         name: "We couldn’t load this property",
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Unable to connect to the property service.")
+      screen.getByText("Unable to connect to the property service."),
     ).toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
         name: "Try again",
-      })
+      }),
     ).toBeInTheDocument();
   });
 });

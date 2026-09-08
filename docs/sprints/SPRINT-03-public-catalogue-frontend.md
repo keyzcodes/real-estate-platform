@@ -309,7 +309,7 @@ The interface must not imply that an approximate location is an exact address.
 | S3-019 | Display property-level amenities                     | Done        |
 | S3-020 | Display property units                               | Done        |
 | S3-021 | Display base rent and transparent fees               | Done        |
-| S3-022 | Display unit amenities                               | To Do       |
+| S3-022 | Display unit amenities                               | Done        |
 | S3-023 | Add an intentional media placeholder                 | Done        |
 | S3-024 | Implement loading states                             | Done        |
 | S3-025 | Implement empty states                               | Done        |
@@ -535,7 +535,7 @@ Sprint 3 will be complete when:
 - [x] Catalogue state is reflected in the URL.
 - [x] The property-detail page works.
 - [x] Base rent and additional fees remain separate.
-- [ ] Property and unit amenities are completely displayed.
+- [x] Property and unit amenities are completely displayed.
 - [x] Missing media uses an intentional placeholder.
 - [x] Loading states work.
 - [x] Empty states work.
