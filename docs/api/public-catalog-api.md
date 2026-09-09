@@ -10,7 +10,7 @@ Implemented and verified.
 
 The Express public catalogue API is covered by automated application, privacy and database-security tests.
 
-The React catalogue consumes this API on `feature/public-catalogue-frontend`. Sprint 3 is awaiting branch and Pull Request review and has not yet been merged into `main`.
+The React catalogue consuming this API was reviewed and merged into `main` through Pull Request #5 after all frontend, backend and database-security checks passed.
 
 Purpose
 
