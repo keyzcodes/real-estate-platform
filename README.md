@@ -12,11 +12,8 @@ Latest completed milestones:
 Public property catalogue backend implemented and merged through Pull Request #1
 Sprint 1 closeout documentation merged through Pull Request #2
 Automated public catalogue testing foundation merged through Pull Request #3
+Sprint 3 public catalogue frontend merged through Pull Request #5
 ```
-
-Current milestone:
-
-The Sprint 3 public catalogue frontend is implemented on `feature/public-catalogue-frontend` and has passed the complete frontend, backend and database regression suite. It is awaiting branch review, Pull Request review and merge into `main`.
 
 The catalogue supports secure public property discovery, property details, pagination, validated filters, approximate locations, amenities and transparent rental fees.
 

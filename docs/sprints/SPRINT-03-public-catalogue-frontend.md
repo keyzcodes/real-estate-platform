@@ -298,7 +298,7 @@ The interface must not imply that an approximate location is an exact address.
 | S3-008 | Configure application routes                         | Done        |
 | S3-009 | Build the catalogue page                             | Done        |
 | S3-010 | Build reusable property cards                        | Done        |
-| S3-011 | Display grouped starting prices                      | In Progress           |
+| S3-011 | Display grouped starting prices                      | Done        |
 | S3-012 | Display approximate locations                        | Done        |
 | S3-013 | Display available-unit counts                        | Done        |
 | S3-014 | Build supported filter controls                      | Done        |
@@ -322,10 +322,10 @@ The interface must not imply that an approximate location is an exact address.
 | S3-032 | Add API-integration tests                            | Done        |
 | S3-033 | Run application regression tests                     | Done        |
 | S3-034 | Update frontend and API documentation                | Done        |
-| S3-035 | Review the complete branch diff                      | To Do       |
-| S3-036 | Open and review the Sprint 3 Pull Request            | To Do       |
-| S3-037 | Merge the frontend catalogue into `main`             | To Do       |
-| S3-038 | Complete the sprint review and retrospective         | To Do       |
+| S3-035 | Review the complete branch diff                      | Done        |
+| S3-036 | Open and review the Sprint 3 Pull Request            | Done        |
+| S3-037 | Merge the frontend catalogue into `main`             | Done        |
+| S3-038 | Complete the sprint review and retrospective         | Done        |
 
 ## Testing Strategy
 
@@ -551,7 +551,7 @@ Sprint 3 will be complete when:
 - [x] The catalogue API client is configured.
 - [x] The catalogue page displays public properties.
 - [x] Property cards display documented safe fields.
-- [ ] Starting prices are grouped correctly.
+- [x] Starting prices are grouped correctly.
 - [x] Approximate locations are labelled clearly.
 - [x] Supported filters work.
 - [x] Sorting works.
@@ -572,9 +572,9 @@ Sprint 3 will be complete when:
 - [x] Existing backend tests have been reconfirmed.
 - [x] Existing PostgreSQL and RLS tests have been reconfirmed.
 - [x] Final documentation is updated.
-- [ ] The branch is reviewed through a Pull Request.
-- [ ] The feature is merged into `main`.
-- [ ] The sprint review and retrospective are completed.
+- [x] The branch is reviewed through a Pull Request.
+- [x] The feature is merged into `main`.
+- [x] The sprint review and retrospective are completed..
 ## Expected Sprint Result
 
 At the end of Sprint 3, a visitor should be able to use the React application to:
@@ -589,3 +589,37 @@ At the end of Sprint 3, a visitor should be able to use the React application to
 8. See clear loading, empty, error and not-found states.
 
 The interface must remain aligned with the existing API, security policies and transparency goals.
+## Sprint Review and Retrospective — 9 September 2026
+
+### Sprint Review
+
+Sprint 3 achieved its goal of delivering a secure, responsive and accessible public property catalogue frontend connected to the existing Express API.
+
+The completed implementation allows visitors to browse verified properties, synchronize filters and pagination with the URL, open property details, review approximate locations, compare grouped starting prices and understand base rent and additional fees separately.
+
+The feature was reviewed through Pull Request #5 and merged into `main` in merge commit `15855fd`. Before merging, all frontend, backend and database-security jobs passed in GitHub Actions.
+
+Validation evidence included 18 frontend tests, 8 backend tests, 27 PostgreSQL and RLS assertions, successful frontend linting and production builds, and manual Lighthouse reviews on mobile and desktop.
+
+### What Went Well
+
+- Building the frontend incrementally made regressions easier to identify.
+- Automated tests protected catalogue behaviour, API requests, privacy rules and keyboard interaction.
+- The centralized API client kept frontend requests consistent.
+- The implementation maintained location privacy and transparent rental pricing.
+- Continuous integration validated the frontend, backend and database independently.
+
+### Challenges and Lessons
+
+- Duplicate component code and test contamination showed the importance of isolated modules and automatic test cleanup.
+- The single-page demonstration dataset could not prove live multi-page pagination manually, so controlled sequential API mocks were used.
+- Documentation statuses needed regular updates as implementation progressed.
+- Final branch review identified and removed unused Vite starter CSS and the unused Motion dependency.
+
+### Actions for the Next Sprint
+
+- Update sprint documentation whenever a task is completed.
+- Add richer controlled demonstration data where manual multi-page testing is useful.
+- Continue using automated regression checks before every Pull Request.
+- Introduce browser end-to-end tests after the deployed environment becomes stable.
+- Define the next MVP sprint around the remaining pilot-readiness requirements.
