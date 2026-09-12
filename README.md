@@ -1,4 +1,4 @@
-# Real Estate Platform
+﻿# Real Estate Platform
 
 A transparency-first rental-property platform designed to help property seekers discover verified listings, understand the real cost of renting and reduce hidden or inflated agent fees.
 
@@ -13,7 +13,10 @@ Public property catalogue backend implemented and merged through Pull Request #1
 Sprint 1 closeout documentation merged through Pull Request #2
 Automated public catalogue testing foundation merged through Pull Request #3
 Sprint 3 public catalogue frontend merged through Pull Request #5
+Sprint 3 closeout documentation merged through Pull Request #6
 ```
+
+The active planning work defines Sprint 4: self-service authentication and protected provider access.
 
 The catalogue supports secure public property discovery, property details, pagination, validated filters, approximate locations, amenities and transparent rental fees.
 
@@ -52,6 +55,8 @@ The platform is being designed to provide:
 ## Phase 1 MVP
 
 The first release focuses on property discovery around UNIMAID and Maiduguri while maintaining a structure that can expand to other locations.
+
+Public browsing remains anonymous. The next controlled increment introduces optional seeker accounts, self-service provider registration and protected provider access. Providers will prepare their own submissions, while verification and publication remain administrator-controlled.
 
 ## Implemented Features
 
@@ -245,14 +250,14 @@ The public request flow is:
 
 ```text
 Visitor
-  → React frontend or API client
-  → Express route
-  → Controller
-  → Zod validation
-  → Service
-  → Supabase publishable key
-  → PostgreSQL permissions and Row Level Security
-  → Controlled public response
+  â†’ React frontend or API client
+  â†’ Express route
+  â†’ Controller
+  â†’ Zod validation
+  â†’ Service
+  â†’ Supabase publishable key
+  â†’ PostgreSQL permissions and Row Level Security
+  â†’ Controlled public response
 ```
 
 Security is enforced through:
@@ -381,51 +386,52 @@ Pull Requests targeting `main` must pass the automated checks before merging.
 
 ### Planned External Services
 
-- Cloudinary
-- Google Maps
-- Transactional email service
+- Cloudinary for property photos, videos and panorama delivery
+- Pannellum for interactive 360-degree panorama viewing
+- Google Maps for later map features
+- An external transactional email service if later required
 
-Cloudinary and Google Maps are planned integrations and are not yet implemented.
+Cloudinary and Pannellum are approved by ADR-004 but are not yet integrated. Google Maps and external transactional email remain deferred until their costs and immediate product value justify implementation.
 
 ## Project Structure
 
 ```text
 real-estate-platform/
-├── .github/
-│   └── workflows/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── constants/
-│   │   ├── controllers/
-│   │   ├── database/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── repositories/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   └── validators/
-│   └── tests/
-│       ├── api/
-│       ├── helpers/
-│       └── services/
-├── docs/
-│   ├── api/
-│   ├── architecture/
-│   ├── database/
-│   ├── requirements/
-│   ├── security/
-│   └── sprints/
-├── frontend/
-├── supabase/
-│   ├── migrations/
-│   ├── tests/
-│   │   └── database/
-│   └── seed.sql
-├── CHANGELOG.md
-├── README.md
-└── SECURITY.md
+â”œâ”€â”€ .github/
+â”‚   â””â”€â”€ workflows/
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ config/
+â”‚   â”‚   â”œâ”€â”€ constants/
+â”‚   â”‚   â”œâ”€â”€ controllers/
+â”‚   â”‚   â”œâ”€â”€ database/
+â”‚   â”‚   â”œâ”€â”€ middleware/
+â”‚   â”‚   â”œâ”€â”€ models/
+â”‚   â”‚   â”œâ”€â”€ repositories/
+â”‚   â”‚   â”œâ”€â”€ routes/
+â”‚   â”‚   â”œâ”€â”€ services/
+â”‚   â”‚   â”œâ”€â”€ utils/
+â”‚   â”‚   â””â”€â”€ validators/
+â”‚   â””â”€â”€ tests/
+â”‚       â”œâ”€â”€ api/
+â”‚       â”œâ”€â”€ helpers/
+â”‚       â””â”€â”€ services/
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ api/
+â”‚   â”œâ”€â”€ architecture/
+â”‚   â”œâ”€â”€ database/
+â”‚   â”œâ”€â”€ requirements/
+â”‚   â”œâ”€â”€ security/
+â”‚   â””â”€â”€ sprints/
+â”œâ”€â”€ frontend/
+â”œâ”€â”€ supabase/
+â”‚   â”œâ”€â”€ migrations/
+â”‚   â”œâ”€â”€ tests/
+â”‚   â”‚   â””â”€â”€ database/
+â”‚   â””â”€â”€ seed.sql
+â”œâ”€â”€ CHANGELOG.md
+â”œâ”€â”€ README.md
+â””â”€â”€ SECURITY.md
 ```
 
 ## Local Development
@@ -579,16 +585,16 @@ Typical workflow:
 
 ```text
 Create feature branch
-  → Implement
-  → Validate
-  → Document
-  → Test
-  → Commit
-  → Push
-  → Open Pull Request
-  → Automated checks
-  → Review
-  → Merge into main
+  â†’ Implement
+  â†’ Validate
+  â†’ Document
+  â†’ Test
+  â†’ Commit
+  â†’ Push
+  â†’ Open Pull Request
+  â†’ Automated checks
+  â†’ Review
+  â†’ Merge into main
 ```
 
 Do not merge an incomplete, failing or unreviewed feature directly into `main`.
@@ -597,36 +603,53 @@ Do not merge an incomplete, failing or unreviewed feature directly into `main`.
 
 The project does not yet include:
 
-- Cloudinary media delivery URLs
+- Authentication screens and frontend session management
+- Self-service seeker and provider registration
+- Automatic provider enrolment
+- Protected provider workspace
+- Provider property-management and submission APIs
+- Cloudinary upload and media delivery integration
+- Interactive public virtual tours
 - Google Maps integration
-- Provider onboarding
-- Administrator dashboard
-- Property-management API
+- Dedicated in-application administrator dashboard
 - Browser end-to-end tests
-- Public virtual-tour endpoint
 - Controlled exact-location disclosure
 - Booking
 - Payments
+
+Initial administrator review may use the Supabase Dashboard. The absence of a dedicated administrator interface does not permit providers to verify or publish their own submissions.
 
 ## Roadmap
 
 ### Next
 
-- Review the complete Sprint 3 feature-branch diff
-- Open and review the Sprint 3 Pull Request
-- Merge the verified public catalogue frontend into `main`
-- Complete the Sprint 3 review and retrospective
-- Define the next MVP sprint and remaining pilot-readiness work
+- Complete and review the Sprint 4 security and requirements documentation
+- Add Supabase authentication to the React frontend
+- Add seeker and provider registration choices
+- Add automatic, narrowly scoped provider enrolment
+- Add backend access-token validation and role authorization
+- Add UUID-based provider ownership policies and security tests
+- Add the protected provider-workspace foundation
+- Complete deployment-readiness review for the public catalogue
+- Select a zero-cost frontend hosting service before deployment
+
+### Following Sprint
+
+- Add provider-owned property drafts
+- Add units, transparent fees, amenities and protected location forms
+- Add controlled listing submission and administrator review
+- Integrate signed Cloudinary uploads
+- Add approved photos, videos and 360-degree panorama viewing
+- Invite providers and internal testers for structured feedback
 
 ### Later
 
-- Integrate Cloudinary media delivery
-- Integrate map-based property discovery
-- Add administrator property management
-- Add provider onboarding
+- Add a dedicated administrator interface
 - Add verified provider contact
 - Add reports and moderation
+- Integrate map-based property discovery
+- Add controlled exact-location disclosure
 - Add browser end-to-end tests
-- Add the public virtual-tour experience
+- Automate verification only after pilot rules are proven
 - Add booking and payment capabilities
 - Expand beyond Maiduguri
