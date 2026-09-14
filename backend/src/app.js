@@ -6,6 +6,7 @@ const { rateLimit } = require("express-rate-limit");
 const amenityRoutes = require("./routes/amenityRoutes");
 const authRoutes = require("./routes/authRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
+const providerRoutes = require("./routes/providerRoutes");
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.get("/api/v1/health", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/provider", providerRoutes);
 app.use("/api/v1/properties", propertyRoutes);
 app.use("/api/v1/amenities", amenityRoutes);
 
