@@ -406,7 +406,7 @@ reviewed for the following sprint.
 | S4-025 | Add request-scoped authenticated Supabase client       | Done    |
 | S4-026 | Add `GET /api/v1/auth/me`                              | Done    |
 | S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Done    |
-| S4-028 | Add provider-role authorization middleware             | Pending |
+| S4-028 | Add provider-role authorization middleware             | Done    |
 | S4-029 | Add the protected provider-workspace endpoint          | Pending |
 | S4-030 | Build the protected provider-workspace foundation      | Pending |
 | S4-031 | Add sign-out and session-expiry handling               | Pending |
