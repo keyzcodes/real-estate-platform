@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const { rateLimit } = require("express-rate-limit");
 
 const amenityRoutes = require("./routes/amenityRoutes");
+const authRoutes = require("./routes/authRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
 
 const app = express();
@@ -15,7 +16,9 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin:
+      process.env.FRONTEND_URL ||
+      "http://localhost:5173",
   })
 );
 
@@ -40,6 +43,7 @@ app.get("/api/v1/health", (req, res) => {
   });
 });
 
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/properties", propertyRoutes);
 app.use("/api/v1/amenities", amenityRoutes);
 
@@ -48,19 +52,24 @@ app.use((req, res) => {
     success: false,
     error: {
       code: "ROUTE_NOT_FOUND",
-      message: "The requested API route was not found.",
+      message:
+        "The requested API route was not found.",
     },
   });
 });
 
 app.use((error, req, res, next) => {
-  console.error("Unhandled application error:", error);
+  console.error(
+    "Unhandled application error:",
+    error
+  );
 
   res.status(500).json({
     success: false,
     error: {
       code: "INTERNAL_SERVER_ERROR",
-      message: "The server could not complete the request.",
+      message:
+        "The server could not complete the request.",
     },
   });
 });

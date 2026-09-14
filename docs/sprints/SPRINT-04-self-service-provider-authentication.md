@@ -404,7 +404,7 @@ reviewed for the following sprint.
 | S4-023 | Add active-profile enforcement                         | Done    |
 | S4-024 | Add authoritative role lookup                          | Done    |
 | S4-025 | Add request-scoped authenticated Supabase client       | Done    |
-| S4-026 | Add `GET /api/v1/auth/me`                              | Pending |
+| S4-026 | Add `GET /api/v1/auth/me`                              | Done    |
 | S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Pending |
 | S4-028 | Add provider-role authorization middleware             | Pending |
 | S4-029 | Add the protected provider-workspace endpoint          | Pending |
