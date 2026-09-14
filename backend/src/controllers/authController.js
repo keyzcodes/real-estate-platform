@@ -1,3 +1,7 @@
+const {
+  enrolCurrentUserAsProvider,
+} = require("../services/authService");
+
 function getCurrentAccount(req, res) {
   const {
     userId,
@@ -21,6 +25,33 @@ function getCurrentAccount(req, res) {
   });
 }
 
+async function enrolProvider(req, res, next) {
+  try {
+    const created =
+      await enrolCurrentUserAsProvider(req.supabase);
+
+    const roles = [
+      ...new Set([
+        ...req.auth.roles,
+        "property_provider",
+      ]),
+    ].sort();
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        providerEnrolment: {
+          created,
+          role: "property_provider",
+          roles,
+        },
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
 module.exports = {
+  enrolProvider,
   getCurrentAccount,
 };

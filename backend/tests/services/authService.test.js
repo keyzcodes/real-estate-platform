@@ -250,4 +250,83 @@ describe("Active account lookup", () => {
       "Authenticated account data is invalid."
     );
   });
+  describe("Provider enrolment service", () => {
+  const { enrolCurrentUserAsProvider } =
+    require("../../src/services/authService");
+
+  test("calls the fixed provider-enrolment function without UUID or role arguments", async () => {
+    const mockRpc = jest.fn().mockResolvedValue({
+      data: true,
+      error: null,
+    });
+
+    await expect(
+      enrolCurrentUserAsProvider({
+        rpc: mockRpc,
+      })
+    ).resolves.toBe(true);
+
+    expect(mockRpc).toHaveBeenCalledTimes(1);
+    expect(mockRpc).toHaveBeenCalledWith(
+      "enrol_current_user_as_provider"
+    );
+  });
+
+  test("returns false when the user was already a provider", async () => {
+    const mockRpc = jest.fn().mockResolvedValue({
+      data: false,
+      error: null,
+    });
+
+    await expect(
+      enrolCurrentUserAsProvider({
+        rpc: mockRpc,
+      })
+    ).resolves.toBe(false);
+  });
+
+  test("rejects a database enrolment failure", async () => {
+    const databaseError = {
+      message: "Provider enrolment denied",
+    };
+
+    const mockRpc = jest.fn().mockResolvedValue({
+      data: null,
+      error: databaseError,
+    });
+
+    await expect(
+      enrolCurrentUserAsProvider({
+        rpc: mockRpc,
+      })
+    ).rejects.toMatchObject({
+      message:
+        "Unable to enrol current user as provider.",
+      cause: databaseError,
+    });
+  });
+
+  test("rejects an invalid database result", async () => {
+    const mockRpc = jest.fn().mockResolvedValue({
+      data: "true",
+      error: null,
+    });
+
+    await expect(
+      enrolCurrentUserAsProvider({
+        rpc: mockRpc,
+      })
+    ).rejects.toThrow(
+      "Provider enrolment data is invalid."
+    );
+  });
+
+  test("requires an authenticated Supabase client", async () => {
+    await expect(
+      enrolCurrentUserAsProvider(null)
+    ).rejects.toThrow(
+      "An authenticated Supabase client is required."
+    );
+  });
+});
 });

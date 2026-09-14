@@ -1,6 +1,7 @@
 const express = require("express");
 
 const {
+  enrolProvider,
   getCurrentAccount,
 } = require("../controllers/authController");
 
@@ -14,6 +15,11 @@ router.get(
   "/me",
   authenticateRequest,
   getCurrentAccount
+);
+router.post(
+  "/provider-enrolment",
+  authenticateRequest,
+  enrolProvider
 );
 
 module.exports = router;

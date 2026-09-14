@@ -2,13 +2,10 @@ const { z } = require("zod");
 const supabase = require("../config/supabase");
 
 const userIdSchema = z.string().uuid();
+const providerEnrolmentResultSchema = z.boolean();
 
 const roleRecordSchema = z.object({
-  role: z.enum([
-    "property_seeker",
-    "property_provider",
-    "admin",
-  ]),
+  role: z.enum(["property_seeker", "property_provider", "admin"]),
 });
 
 const activeAccountRecordSchema = z.object({
@@ -28,23 +25,17 @@ const accountSelect = [
 ].join(",");
 
 async function validateAccessToken(accessToken) {
-  if (
-    typeof accessToken !== "string" ||
-    accessToken.trim().length === 0
-  ) {
+  if (typeof accessToken !== "string" || accessToken.trim().length === 0) {
     return null;
   }
 
-  const { data, error } =
-    await supabase.auth.getClaims(accessToken);
+  const { data, error } = await supabase.auth.getClaims(accessToken);
 
   if (error) {
     return null;
   }
 
-  const userIdResult = userIdSchema.safeParse(
-    data?.claims?.sub
-  );
+  const userIdResult = userIdSchema.safeParse(data?.claims?.sub);
 
   if (!userIdResult.success) {
     return null;
@@ -55,10 +46,7 @@ async function validateAccessToken(accessToken) {
   };
 }
 
-async function getActiveAccount(
-  authenticatedSupabaseClient,
-  userId
-) {
+async function getActiveAccount(authenticatedSupabaseClient, userId) {
   const userIdResult = userIdSchema.safeParse(userId);
 
   if (!userIdResult.success) {
@@ -69,22 +57,17 @@ async function getActiveAccount(
     !authenticatedSupabaseClient ||
     typeof authenticatedSupabaseClient.from !== "function"
   ) {
-    throw new TypeError(
-      "An authenticated Supabase client is required."
-    );
+    throw new TypeError("An authenticated Supabase client is required.");
   }
 
-  const { data, error } =
-    await authenticatedSupabaseClient
-      .from("profiles")
-      .select(accountSelect)
-      .eq("id", userIdResult.data)
-      .maybeSingle();
+  const { data, error } = await authenticatedSupabaseClient
+    .from("profiles")
+    .select(accountSelect)
+    .eq("id", userIdResult.data)
+    .maybeSingle();
 
   if (error) {
-    const accountReadError = new Error(
-      "Unable to read authenticated account."
-    );
+    const accountReadError = new Error("Unable to read authenticated account.");
 
     accountReadError.cause = error;
     throw accountReadError;
@@ -94,16 +77,10 @@ async function getActiveAccount(
     return null;
   }
 
-  const accountResult =
-    activeAccountRecordSchema.safeParse(data);
+  const accountResult = activeAccountRecordSchema.safeParse(data);
 
-  if (
-    !accountResult.success ||
-    accountResult.data.id !== userIdResult.data
-  ) {
-    throw new Error(
-      "Authenticated account data is invalid."
-    );
+  if (!accountResult.success || accountResult.data.id !== userIdResult.data) {
+    throw new Error("Authenticated account data is invalid.");
   }
 
   const roles = accountResult.data.user_roles
@@ -119,7 +96,38 @@ async function getActiveAccount(
   };
 }
 
+async function enrolCurrentUserAsProvider(authenticatedSupabaseClient) {
+  if (
+    !authenticatedSupabaseClient ||
+    typeof authenticatedSupabaseClient.rpc !== "function"
+  ) {
+    throw new TypeError("An authenticated Supabase client is required.");
+  }
+
+  const { data, error } = await authenticatedSupabaseClient.rpc(
+    "enrol_current_user_as_provider",
+  );
+
+  if (error) {
+    const providerEnrolmentError = new Error(
+      "Unable to enrol current user as provider.",
+    );
+
+    providerEnrolmentError.cause = error;
+    throw providerEnrolmentError;
+  }
+
+  const enrolmentResult = providerEnrolmentResultSchema.safeParse(data);
+
+  if (!enrolmentResult.success) {
+    throw new Error("Provider enrolment data is invalid.");
+  }
+
+  return enrolmentResult.data;
+}
+
 module.exports = {
+  enrolCurrentUserAsProvider,
   getActiveAccount,
   validateAccessToken,
 };
