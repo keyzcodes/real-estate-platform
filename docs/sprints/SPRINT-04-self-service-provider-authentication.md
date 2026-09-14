@@ -396,11 +396,11 @@ reviewed for the following sprint.
 | S4-015 | Build the generic Sign-in page                         | Done    |
 | S4-016 | Add authentication callback handling                   | Done    |
 | S4-017 | Preserve provider-registration intent safely           | done    |
-| S4-018 | Add automatic provider enrolment migration             | Pending |
-| S4-019 | Restrict provider enrolment to the authenticated UUID  | Pending |
-| S4-020 | Make provider enrolment idempotent                     | Pending |
-| S4-021 | Add backend bearer-token parsing                       | Pending |
-| S4-022 | Add backend access-token validation                    | Pending |
+| S4-018 | Add automatic provider enrolment migration             | Done    |
+| S4-019 | Restrict provider enrolment to the authenticated UUID  | Done    |
+| S4-020 | Make provider enrolment idempotent                     | Done    |
+| S4-021 | Add backend bearer-token parsing                       | Done    |
+| S4-022 | Add backend access-token validation                    | Done    |
 | S4-023 | Add active-profile enforcement                         | Pending |
 | S4-024 | Add authoritative role lookup                          | Pending |
 | S4-025 | Add request-scoped authenticated Supabase client       | Pending |
@@ -414,7 +414,7 @@ reviewed for the following sprint.
 | S4-033 | Add authentication-specific rate limiting              | Pending |
 | S4-034 | Add frontend authentication tests                      | Pending |
 | S4-035 | Add backend authentication and authorization tests     | Pending |
-| S4-036 | Add pgTAP provider-enrolment and role tests            | Pending |
+| S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
 | S4-037 | Re-run public catalogue regression tests               | Pending |
 | S4-038 | Review responsive and accessible authentication UI     | Pending |
 | S4-039 | Review Supabase URL and redirect configuration         | Pending |
