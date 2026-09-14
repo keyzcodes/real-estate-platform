@@ -235,12 +235,22 @@ function PropertyCataloguePage() {
             Kudu
           </Link>
 
-          <nav aria-label="Primary navigation">
+          <nav
+            aria-label="Primary navigation"
+            className="flex items-center gap-4 sm:gap-6"
+          >
             <Link
               to="/properties"
               className="font-medium text-kudu-green hover:underline"
             >
               Browse properties
+            </Link>
+
+            <Link
+              to="/join"
+              className="rounded-lg bg-kudu-green px-4 py-2 font-semibold text-white transition hover:opacity-90"
+            >
+              Join
             </Link>
           </nav>
         </div>

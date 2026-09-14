@@ -386,16 +386,16 @@ reviewed for the following sprint.
 | S4-005 | Update the product requirements                        | Done    |
 | S4-006 | Update the README status and roadmap                   | Done    |
 | S4-007 | Create the Sprint 4 plan                               | Done    |
-| S4-008 | Review and merge the Sprint 4 planning branch          | Pending |
-| S4-009 | Create the Sprint 4 implementation branch              | Pending |
-| S4-010 | Add frontend Supabase dependency                       | Pending |
-| S4-011 | Add documented frontend Supabase environment variables | Pending |
-| S4-012 | Create the frontend Supabase client                    | Pending |
-| S4-013 | Create authentication session context                  | Pending |
-| S4-014 | Build the Join page                                    | Pending |
-| S4-015 | Build the generic Sign-in page                         | Pending |
-| S4-016 | Add authentication callback handling                   | Pending |
-| S4-017 | Preserve provider-registration intent safely           | Pending |
+| S4-008 | Review and merge the Sprint 4 planning branch          | Done    |
+| S4-009 | Create the Sprint 4 implementation branch              | Done    |
+| S4-010 | Add frontend Supabase dependency                       | Done    |
+| S4-011 | Add documented frontend Supabase environment variables | Done    |
+| S4-012 | Create the frontend Supabase client                    | Done    |
+| S4-013 | Create authentication session context                  | Done    |
+| S4-014 | Build the Join page                                    | Done    |
+| S4-015 | Build the generic Sign-in page                         | Done    |
+| S4-016 | Add authentication callback handling                   | Done    |
+| S4-017 | Preserve provider-registration intent safely           | done    |
 | S4-018 | Add automatic provider enrolment migration             | Pending |
 | S4-019 | Restrict provider enrolment to the authenticated UUID  | Pending |
 | S4-020 | Make provider enrolment idempotent                     | Pending |
