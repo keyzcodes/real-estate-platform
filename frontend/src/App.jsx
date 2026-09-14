@@ -4,6 +4,7 @@ import JoinPage from "./pages/JoinPage";
 import PropertyCataloguePage from "./pages/PropertyCataloguePage";
 import PropertyDetailPage from "./pages/PropertyDetailPage";
 import SignInPage from "./pages/SignInPage";
+import ProviderWorkspacePage from "./pages/ProviderWorkspacePage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/provider" element={<ProviderWorkspacePage />} />
     </Routes>
   );
 }

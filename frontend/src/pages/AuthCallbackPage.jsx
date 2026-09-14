@@ -36,11 +36,13 @@ function AuthCallbackPage() {
 
   useEffect(() => {
     if (!callbackHasError && !isLoading && isAuthenticated) {
+      const destination = registrationIntent === "provider" ? "/provider" : "/";
+
       if (registrationIntent === "seeker") {
         clearRegistrationIntent();
       }
 
-      navigate("/", { replace: true });
+      navigate(destination, { replace: true });
     }
   }, [
     callbackHasError,

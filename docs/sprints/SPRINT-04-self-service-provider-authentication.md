@@ -408,7 +408,7 @@ reviewed for the following sprint.
 | S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Done    |
 | S4-028 | Add provider-role authorization middleware             | Done    |
 | S4-029 | Add the protected provider-workspace endpoint          | Done    |
-| S4-030 | Build the protected provider-workspace foundation      | Pending |
+| S4-030 | Build the protected provider-workspace foundation      | Done    |
 | S4-031 | Add sign-out and session-expiry handling               | Pending |
 | S4-032 | Add controlled authentication error states             | Pending |
 | S4-033 | Add authentication-specific rate limiting              | Pending |
