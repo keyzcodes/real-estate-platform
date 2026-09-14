@@ -401,9 +401,9 @@ reviewed for the following sprint.
 | S4-020 | Make provider enrolment idempotent                     | Done    |
 | S4-021 | Add backend bearer-token parsing                       | Done    |
 | S4-022 | Add backend access-token validation                    | Done    |
-| S4-023 | Add active-profile enforcement                         | Pending |
-| S4-024 | Add authoritative role lookup                          | Pending |
-| S4-025 | Add request-scoped authenticated Supabase client       | Pending |
+| S4-023 | Add active-profile enforcement                         | Done    |
+| S4-024 | Add authoritative role lookup                          | Done    |
+| S4-025 | Add request-scoped authenticated Supabase client       | Done    |
 | S4-026 | Add `GET /api/v1/auth/me`                              | Pending |
 | S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Pending |
 | S4-028 | Add provider-role authorization middleware             | Pending |

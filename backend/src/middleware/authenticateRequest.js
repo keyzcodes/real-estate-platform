@@ -1,4 +1,9 @@
 const {
+  createAuthenticatedSupabaseClient,
+} = require("../config/supabase");
+
+const {
+  getActiveAccount,
   validateAccessToken,
 } = require("../services/authService");
 
@@ -28,6 +33,17 @@ function sendAuthenticationRequired(res) {
   });
 }
 
+function sendAccountAccessDenied(res) {
+  return res.status(403).json({
+    success: false,
+    error: {
+      code: "ACCOUNT_ACCESS_DENIED",
+      message:
+        "This account cannot access protected resources.",
+    },
+  });
+}
+
 async function authenticateRequest(req, res, next) {
   const accessToken = parseBearerToken(
     req.get("authorization")
@@ -45,9 +61,27 @@ async function authenticateRequest(req, res, next) {
       return sendAuthenticationRequired(res);
     }
 
+    const authenticatedSupabaseClient =
+      createAuthenticatedSupabaseClient(accessToken);
+
+    const activeAccount = await getActiveAccount(
+      authenticatedSupabaseClient,
+      authenticatedUser.id
+    );
+
+    if (!activeAccount) {
+      return sendAccountAccessDenied(res);
+    }
+
     req.auth = {
-      userId: authenticatedUser.id,
+      userId: activeAccount.id,
+      fullName: activeAccount.fullName,
+      avatarUrl: activeAccount.avatarUrl,
+      accountStatus: activeAccount.accountStatus,
+      roles: activeAccount.roles,
     };
+
+    req.supabase = authenticatedSupabaseClient;
 
     return next();
   } catch (error) {
