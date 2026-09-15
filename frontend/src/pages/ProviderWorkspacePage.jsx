@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Link,
-  Navigate,
-} from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
   clearRegistrationIntent,
   readRegistrationIntent,
@@ -14,26 +11,43 @@ import {
 } from "../api/authApi";
 
 function ProviderWorkspacePage() {
+  const navigate = useNavigate();
+
   const {
     accessToken,
     isAuthenticated,
     isLoading,
+    isSigningOut,
+    signOut,
+    user,
   } = useAuth();
 
-  const [workspace, setWorkspace] = useState(null);
-  const [status, setStatus] = useState("idle");
+  const [result, setResult] = useState({
+    accountKey: null,
+    workspace: null,
+    status: "idle",
+  });
 
-  const registrationIntent =
-    readRegistrationIntent();
+  const [signOutError, setSignOutError] = useState("");
+  const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
 
-  const shouldCompleteProviderEnrolment =
-    registrationIntent === "provider";
+  // Keep this key in memory only. Never render or log access tokens.
+  const accountKey =
+    isAuthenticated && accessToken && user?.id
+      ? `${user.id}:${accessToken}`
+      : null;
+
+  const workspace = result.accountKey === accountKey ? result.workspace : null;
+
+  const status = result.accountKey === accountKey ? result.status : "idle";
 
   useEffect(() => {
     if (
       isLoading ||
+      isSigningOut ||
       !isAuthenticated ||
-      !accessToken
+      !accessToken ||
+      !accountKey
     ) {
       return undefined;
     }
@@ -41,46 +55,57 @@ function ProviderWorkspacePage() {
     const controller = new AbortController();
 
     async function loadProviderWorkspace() {
-      setStatus("loading");
+      setResult({
+        accountKey,
+        workspace: null,
+        status: "loading",
+      });
 
       try {
-        if (shouldCompleteProviderEnrolment) {
-          await enrolCurrentUserAsProvider(
-            accessToken,
-            {
-              signal: controller.signal,
-            }
-          );
+        if (readRegistrationIntent() === "provider") {
+          await enrolCurrentUserAsProvider(accessToken, {
+            signal: controller.signal,
+          });
+
+          if (controller.signal.aborted) {
+            return;
+          }
 
           clearRegistrationIntent();
         }
 
-        const workspaceData =
-          await getProviderWorkspace(
-            accessToken,
-            {
-              signal: controller.signal,
-            }
-          );
+        const workspaceData = await getProviderWorkspace(accessToken, {
+          signal: controller.signal,
+        });
 
-        setWorkspace(workspaceData);
-        setStatus("success");
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        if (typeof workspaceData?.fullName !== "string") {
+          throw new Error("The workspace response is invalid.");
+        }
+
+        setResult({
+          accountKey,
+          workspace: workspaceData,
+          status: "success",
+        });
       } catch (error) {
-        if (error.name === "AbortError") {
+        if (controller.signal.aborted || error?.name === "AbortError") {
           return;
         }
 
-        if (error.status === 401) {
-          setStatus("session-expired");
-          return;
-        }
-
-        if (error.status === 403) {
-          setStatus("access-denied");
-          return;
-        }
-
-        setStatus("error");
+        setResult({
+          accountKey,
+          workspace: null,
+          status:
+            error?.status === 401
+              ? "session-expired"
+              : error?.status === 403
+                ? "access-denied"
+                : "error",
+        });
       }
     }
 
@@ -89,29 +114,31 @@ function ProviderWorkspacePage() {
     return () => {
       controller.abort();
     };
-  }, [
-    accessToken,
-    isAuthenticated,
-    isLoading,
-    shouldCompleteProviderEnrolment,
-  ]);
+  }, [accessToken, accountKey, isAuthenticated, isLoading, isSigningOut]);
 
-  if (!isLoading && !isAuthenticated) {
-    return (
-      <Navigate
-        to="/sign-in?intent=provider"
-        replace
-      />
-    );
+  async function handleSignOut(destination = "/") {
+    setSignOutError("");
+    setIsLeavingWorkspace(true);
+
+    try {
+      await signOut();
+      navigate(destination, { replace: true });
+    } catch {
+      setIsLeavingWorkspace(false);
+
+      setSignOutError(
+        "We could not complete sign-out. Please check your connection and try again.",
+      );
+    }
+  }
+
+  if (!isLoading && !isSigningOut && !isAuthenticated && !isLeavingWorkspace) {
+    return <Navigate to="/sign-in?intent=provider" replace />;
   }
 
   let content;
 
-  if (
-    isLoading ||
-    status === "idle" ||
-    status === "loading"
-  ) {
+  if (isLoading || isSigningOut || status === "idle" || status === "loading") {
     content = (
       <section
         className="mx-auto max-w-xl rounded-2xl border border-black/10 bg-white p-8 text-center shadow-sm"
@@ -125,7 +152,7 @@ function ProviderWorkspacePage() {
           id="workspace-loading-heading"
           className="mt-4 text-3xl font-semibold text-kudu-green"
         >
-          Preparing your workspace
+          {isSigningOut ? "Signing you out" : "Preparing your workspace"}
         </h1>
 
         <p
@@ -133,15 +160,42 @@ function ProviderWorkspacePage() {
           role="status"
           aria-live="polite"
         >
-          We are securely confirming your account and
-          provider access.
+          {isSigningOut
+            ? "Your protected workspace is hidden while sign-out completes."
+            : "We are securely confirming your account and provider access."}
         </p>
       </section>
     );
-  } else if (
-    status === "access-denied" ||
-    status === "session-expired"
-  ) {
+  } else if (status === "session-expired") {
+    content = (
+      <section
+        className="mx-auto max-w-xl rounded-2xl border border-black/10 bg-white p-8 text-center shadow-sm"
+        aria-labelledby="workspace-session-heading"
+      >
+        <h1
+          id="workspace-session-heading"
+          className="text-3xl font-semibold text-kudu-green"
+        >
+          Please sign in again
+        </h1>
+
+        <p
+          className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 leading-7 text-red-800"
+          role="alert"
+        >
+          Your session could not be verified. Sign in again to continue.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => handleSignOut("/sign-in?intent=provider")}
+          className="mt-8 inline-flex min-h-12 items-center justify-center rounded-lg bg-kudu-green px-6 font-semibold text-white transition hover:opacity-90"
+        >
+          Sign in again
+        </button>
+      </section>
+    );
+  } else if (status === "access-denied") {
     content = (
       <section
         className="mx-auto max-w-xl rounded-2xl border border-black/10 bg-white p-8 text-center shadow-sm"
@@ -162,8 +216,7 @@ function ProviderWorkspacePage() {
           className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 leading-7 text-red-800"
           role="alert"
         >
-          Your current account cannot access the
-          provider workspace.
+          Your current account cannot access the provider workspace.
         </p>
 
         <Link
@@ -187,12 +240,8 @@ function ProviderWorkspacePage() {
           Workspace temporarily unavailable
         </h1>
 
-        <p
-          className="mt-5 leading-7 text-stone-700"
-          role="alert"
-        >
-          We could not load the provider workspace.
-          Please try again later.
+        <p className="mt-5 leading-7 text-stone-700" role="alert">
+          We could not load the provider workspace. Please try again later.
         </p>
 
         <Link
@@ -218,9 +267,8 @@ function ProviderWorkspacePage() {
         </h1>
 
         <p className="mt-5 max-w-3xl text-lg leading-8 text-stone-700">
-          Your provider access has been confirmed.
-          This workspace will become the home of your
-          property submissions.
+          Your provider access has been confirmed. This workspace will become
+          the home of your property submissions.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -230,8 +278,8 @@ function ProviderWorkspacePage() {
             </h2>
 
             <p className="mt-3 leading-7 text-stone-700">
-              Property creation and editing will be
-              introduced in the following sprint.
+              Property creation and editing will be introduced in the following
+              sprint.
             </p>
           </article>
 
@@ -241,8 +289,8 @@ function ProviderWorkspacePage() {
             </h2>
 
             <p className="mt-3 leading-7 text-stone-700">
-              Photo, video and 360-degree uploads remain
-              disabled until Cloudinary integration.
+              Photo, video and 360-degree uploads remain disabled until
+              Cloudinary integration.
             </p>
           </article>
 
@@ -252,9 +300,8 @@ function ProviderWorkspacePage() {
             </h2>
 
             <p className="mt-3 leading-7 text-stone-700">
-              Provider submissions will still require
-              administrator verification before
-              publication.
+              Provider submissions will still require administrator verification
+              before publication.
             </p>
           </article>
         </div>
@@ -273,18 +320,41 @@ function ProviderWorkspacePage() {
             Kudu
           </Link>
 
-          <nav aria-label="Primary navigation">
+          <nav
+            aria-label="Primary navigation"
+            className="flex flex-wrap items-center justify-end gap-4"
+          >
             <Link
               to="/properties"
               className="font-medium text-kudu-green hover:underline"
             >
               Browse properties
             </Link>
+
+            {(isAuthenticated || isSigningOut) && (
+              <button
+                type="button"
+                onClick={() => handleSignOut()}
+                disabled={isSigningOut}
+                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-kudu-green px-4 font-semibold text-kudu-green transition hover:bg-kudu-green/5 disabled:cursor-wait disabled:opacity-60"
+              >
+                {isSigningOut ? "Signing out..." : "Sign out"}
+              </button>
+            )}
           </nav>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
+        {signOutError && (
+          <p
+            className="mb-8 rounded-lg border border-red-200 bg-red-50 p-4 leading-7 text-red-800"
+            role="alert"
+          >
+            {signOutError}
+          </p>
+        )}
+
         {content}
       </main>
     </div>
