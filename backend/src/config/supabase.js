@@ -9,16 +9,44 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+function createStatelessAuthOptions() {
+  return {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  };
+}
+
 const supabase = createClient(
   supabaseUrl,
   supabasePublishableKey,
   {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
+    auth: createStatelessAuthOptions(),
   }
 );
 
+function createAuthenticatedSupabaseClient(accessToken) {
+  const normalizedAccessToken =
+    typeof accessToken === "string" ? accessToken.trim() : "";
+
+  if (!normalizedAccessToken) {
+    throw new TypeError("A validated access token is required.");
+  }
+
+  return createClient(
+    supabaseUrl,
+    supabasePublishableKey,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${normalizedAccessToken}`,
+        },
+      },
+      auth: createStatelessAuthOptions(),
+    }
+  );
+}
+
 module.exports = supabase;
+module.exports.createAuthenticatedSupabaseClient =
+  createAuthenticatedSupabaseClient;

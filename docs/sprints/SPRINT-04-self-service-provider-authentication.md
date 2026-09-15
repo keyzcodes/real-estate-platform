@@ -386,35 +386,35 @@ reviewed for the following sprint.
 | S4-005 | Update the product requirements                        | Done    |
 | S4-006 | Update the README status and roadmap                   | Done    |
 | S4-007 | Create the Sprint 4 plan                               | Done    |
-| S4-008 | Review and merge the Sprint 4 planning branch          | Pending |
-| S4-009 | Create the Sprint 4 implementation branch              | Pending |
-| S4-010 | Add frontend Supabase dependency                       | Pending |
-| S4-011 | Add documented frontend Supabase environment variables | Pending |
-| S4-012 | Create the frontend Supabase client                    | Pending |
-| S4-013 | Create authentication session context                  | Pending |
-| S4-014 | Build the Join page                                    | Pending |
-| S4-015 | Build the generic Sign-in page                         | Pending |
-| S4-016 | Add authentication callback handling                   | Pending |
-| S4-017 | Preserve provider-registration intent safely           | Pending |
-| S4-018 | Add automatic provider enrolment migration             | Pending |
-| S4-019 | Restrict provider enrolment to the authenticated UUID  | Pending |
-| S4-020 | Make provider enrolment idempotent                     | Pending |
-| S4-021 | Add backend bearer-token parsing                       | Pending |
-| S4-022 | Add backend access-token validation                    | Pending |
-| S4-023 | Add active-profile enforcement                         | Pending |
-| S4-024 | Add authoritative role lookup                          | Pending |
-| S4-025 | Add request-scoped authenticated Supabase client       | Pending |
-| S4-026 | Add `GET /api/v1/auth/me`                              | Pending |
-| S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Pending |
-| S4-028 | Add provider-role authorization middleware             | Pending |
-| S4-029 | Add the protected provider-workspace endpoint          | Pending |
-| S4-030 | Build the protected provider-workspace foundation      | Pending |
-| S4-031 | Add sign-out and session-expiry handling               | Pending |
+| S4-008 | Review and merge the Sprint 4 planning branch          | Done    |
+| S4-009 | Create the Sprint 4 implementation branch              | Done    |
+| S4-010 | Add frontend Supabase dependency                       | Done    |
+| S4-011 | Add documented frontend Supabase environment variables | Done    |
+| S4-012 | Create the frontend Supabase client                    | Done    |
+| S4-013 | Create authentication session context                  | Done    |
+| S4-014 | Build the Join page                                    | Done    |
+| S4-015 | Build the generic Sign-in page                         | Done    |
+| S4-016 | Add authentication callback handling                   | Done    |
+| S4-017 | Preserve provider-registration intent safely           | done    |
+| S4-018 | Add automatic provider enrolment migration             | Done    |
+| S4-019 | Restrict provider enrolment to the authenticated UUID  | Done    |
+| S4-020 | Make provider enrolment idempotent                     | Done    |
+| S4-021 | Add backend bearer-token parsing                       | Done    |
+| S4-022 | Add backend access-token validation                    | Done    |
+| S4-023 | Add active-profile enforcement                         | Done    |
+| S4-024 | Add authoritative role lookup                          | Done    |
+| S4-025 | Add request-scoped authenticated Supabase client       | Done    |
+| S4-026 | Add `GET /api/v1/auth/me`                              | Done    |
+| S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Done    |
+| S4-028 | Add provider-role authorization middleware             | Done    |
+| S4-029 | Add the protected provider-workspace endpoint          | Done    |
+| S4-030 | Build the protected provider-workspace foundation      | Done    |
+| S4-031 | Add sign-out and session-expiry handling               | Done    |
 | S4-032 | Add controlled authentication error states             | Pending |
 | S4-033 | Add authentication-specific rate limiting              | Pending |
 | S4-034 | Add frontend authentication tests                      | Pending |
 | S4-035 | Add backend authentication and authorization tests     | Pending |
-| S4-036 | Add pgTAP provider-enrolment and role tests            | Pending |
+| S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
 | S4-037 | Re-run public catalogue regression tests               | Pending |
 | S4-038 | Review responsive and accessible authentication UI     | Pending |
 | S4-039 | Review Supabase URL and redirect configuration         | Pending |
