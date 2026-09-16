@@ -412,7 +412,7 @@ reviewed for the following sprint.
 | S4-031 | Add sign-out and session-expiry handling               | Done    |
 | S4-032 | Add controlled authentication error states             | Done    |
 | S4-033 | Add authentication-specific rate limiting              | Done    |
-| S4-034 | Add frontend authentication tests                      | Pending |
+| S4-034 | Add frontend authentication tests                      | Done    |
 | S4-035 | Add backend authentication and authorization tests     | Pending |
 | S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
 | S4-037 | Re-run public catalogue regression tests               | Pending |
