@@ -417,9 +417,9 @@ reviewed for the following sprint.
 | S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
 | S4-037 | Re-run public catalogue regression tests               | Done    |
 | S4-038 | Review responsive and accessible authentication UI     | Done    |
-| S4-039 | Review Supabase URL and redirect configuration         | Pending |
-| S4-040 | Configure the approved zero-cost authentication method | Pending |
-| S4-041 | Perform controlled local manual verification           | Pending |
+| S4-039 | Review Supabase URL and redirect configuration         | Done    |
+| S4-040 | Configure the approved zero-cost authentication method | Done    |
+| S4-041 | Perform controlled local manual verification           | Done    |
 | S4-042 | Update security and API documentation                  | Pending |
 | S4-043 | Review the complete implementation diff                | Pending |
 | S4-044 | Open and review the Sprint 4 implementation PR         | Pending |

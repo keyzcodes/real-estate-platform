@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
   clearRegistrationIntent,
@@ -30,6 +30,17 @@ function ProviderWorkspacePage() {
 
   const [signOutError, setSignOutError] = useState("");
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
+  const [isSignOutConfirmationOpen, setIsSignOutConfirmationOpen] =
+    useState(false);
+
+  const signOutButtonRef = useRef(null);
+  const staySignedInButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (isSignOutConfirmationOpen) {
+      staySignedInButtonRef.current?.focus();
+    }
+  }, [isSignOutConfirmationOpen]);
 
   // Keep this key in memory only. Never render or log access tokens.
   const accountKey =
@@ -116,13 +127,27 @@ function ProviderWorkspacePage() {
     };
   }, [accessToken, accountKey, isAuthenticated, isLoading, isSigningOut]);
 
-  async function handleSignOut(destination = "/") {
+  function requestSignOut() {
+    setSignOutError("");
+    setIsSignOutConfirmationOpen(true);
+  }
+
+  function cancelSignOut() {
+    setIsSignOutConfirmationOpen(false);
+    signOutButtonRef.current?.focus();
+  }
+
+  async function handleSignOut(destination = "/", navigationState = null) {
+    setIsSignOutConfirmationOpen(false);
     setSignOutError("");
     setIsLeavingWorkspace(true);
 
     try {
       await signOut();
-      navigate(destination, { replace: true });
+      navigate(destination, {
+        replace: true,
+        state: navigationState,
+      });
     } catch {
       setIsLeavingWorkspace(false);
 
@@ -333,12 +358,17 @@ function ProviderWorkspacePage() {
 
             {(isAuthenticated || isSigningOut) && (
               <button
+                ref={signOutButtonRef}
                 type="button"
-                onClick={() => handleSignOut()}
-                disabled={isSigningOut}
+                onClick={requestSignOut}
+                disabled={isSigningOut || isLeavingWorkspace}
+                aria-controls="sign-out-confirmation"
+                aria-expanded={isSignOutConfirmationOpen}
                 className="inline-flex min-h-12 items-center justify-center rounded-lg border border-kudu-green px-4 font-semibold text-kudu-green transition hover:bg-kudu-green/5 disabled:cursor-wait disabled:opacity-60"
               >
-                {isSigningOut ? "Signing out..." : "Sign out"}
+                {isSigningOut || isLeavingWorkspace
+                  ? "Signing out..."
+                  : "Sign out"}
               </button>
             )}
           </nav>
@@ -346,6 +376,45 @@ function ProviderWorkspacePage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
+        {isSignOutConfirmationOpen && (
+          <section
+            id="sign-out-confirmation"
+            role="region"
+            aria-labelledby="sign-out-confirmation-heading"
+            className="mb-8 rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm"
+          >
+            <h2
+              id="sign-out-confirmation-heading"
+              className="text-xl font-semibold text-stone-900"
+            >
+              Are you sure you want to sign out?
+            </h2>
+
+            <p className="mt-3 leading-7 text-stone-700">
+              You will need to sign in again to return to your provider
+              workspace.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                ref={staySignedInButtonRef}
+                type="button"
+                onClick={cancelSignOut}
+                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-kudu-green px-5 font-semibold text-kudu-green transition hover:bg-kudu-green/5"
+              >
+                Stay signed in
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSignOut("/", { signedOut: true })}
+                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-kudu-green px-5 font-semibold text-white transition hover:opacity-90"
+              >
+                Yes, sign out
+              </button>
+            </div>
+          </section>
+        )}
         {signOutError && (
           <p
             className="mb-8 rounded-lg border border-red-200 bg-red-50 p-4 leading-7 text-red-800"

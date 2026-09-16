@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import PropertyCataloguePage from "./PropertyCataloguePage";
@@ -41,10 +41,16 @@ function CurrentLocation() {
   const location = useLocation();
 
   return (
-    <output data-testid="current-location">
-      {location.pathname}
-      {location.search}
-    </output>
+    <>
+      <output data-testid="current-location">
+        {location.pathname}
+        {location.search}
+      </output>
+
+      <output data-testid="current-navigation-state">
+        {location.state?.signedOut === true ? "signed-out" : "cleared"}
+      </output>
+    </>
   );
 }
 
@@ -60,6 +66,89 @@ function renderCataloguePage(initialEntry = "/properties") {
 describe("PropertyCataloguePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("announces a successful sign-out received through navigation state", async () => {
+    const user = userEvent.setup();
+    getProperties.mockResolvedValue({
+      properties: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+
+    renderCataloguePage({
+      pathname: "/properties",
+      state: {
+        signedOut: true,
+      },
+    });
+
+    const confirmation = await screen.findByText(
+      "You have signed out successfully.",
+    );
+
+    expect(confirmation).toHaveAttribute("role", "status");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("current-navigation-state")).toHaveTextContent(
+        "cleared",
+      );
+    });
+
+    expect(confirmation).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Dismiss sign-out confirmation",
+      }),
+    );
+
+    expect(
+      screen.queryByText("You have signed out successfully."),
+    ).not.toBeInTheDocument();
+  });
+
+  test("automatically removes the sign-out confirmation after six seconds", () => {
+    vi.useFakeTimers();
+
+    getProperties.mockReturnValue(new Promise(() => {}));
+
+    renderCataloguePage({
+      pathname: "/properties",
+      state: {
+        signedOut: true,
+      },
+    });
+
+    expect(
+      screen.getByText("You have signed out successfully."),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(5_999);
+    });
+
+    expect(
+      screen.getByText("You have signed out successfully."),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(
+      screen.queryByText("You have signed out successfully."),
+    ).not.toBeInTheDocument();
   });
 
   test("loads and displays verified properties", async () => {

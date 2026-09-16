@@ -18,58 +18,62 @@ function SignInPage() {
     searchParams.get("intent"),
   );
 
+  const signedInDestination =
+    registrationIntent === "provider" ? "/provider" : "/properties";
+
+  const signedInActionLabel =
+    registrationIntent === "provider"
+      ? "Continue to provider workspace"
+      : "Continue to property browsing";
+
   useEffect(() => {
-  try {
-    storeRegistrationIntent(registrationIntent);
-  } catch {
-    // Keep the page usable. The sign-in handler reports storage errors.
-  }
-}, [registrationIntent]);
+    try {
+      storeRegistrationIntent(registrationIntent);
+    } catch {
+      // Keep the page usable. The sign-in handler reports storage errors.
+    }
+  }, [registrationIntent]);
 
   async function handleGoogleSignIn() {
-  if (
-    isLoading ||
-    isAuthenticated ||
-    submissionStatus === "loading"
-  ) {
-    return;
-  }
-
-  setSubmissionStatus("loading");
-  setErrorMessage("");
-
-  let intentSaved = false;
-
-  try {
-    storeRegistrationIntent(registrationIntent);
-    intentSaved = true;
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      throw error;
+    if (isLoading || isAuthenticated || submissionStatus === "loading") {
+      return;
     }
-  } catch {
+
+    setSubmissionStatus("loading");
+    setErrorMessage("");
+
+    let intentSaved = false;
+
     try {
-      clearRegistrationIntent();
+      storeRegistrationIntent(registrationIntent);
+      intentSaved = true;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
     } catch {
-      // Cleanup can also fail when browser storage is unavailable.
+      try {
+        clearRegistrationIntent();
+      } catch {
+        // Cleanup can also fail when browser storage is unavailable.
+      }
+
+      setErrorMessage(
+        intentSaved
+          ? "We could not start sign-in. Please try again in a moment."
+          : "Your browser could not save sign-in progress. Please check its site-storage settings and try again.",
+      );
+
+      setSubmissionStatus("idle");
     }
-
-    setErrorMessage(
-      intentSaved
-        ? "We could not start sign-in. Please try again in a moment."
-        : "Your browser could not save sign-in progress. Please check its site-storage settings and try again."
-    );
-
-    setSubmissionStatus("idle");
   }
-}
   return (
     <div className="min-h-screen bg-kudu-ivory text-stone-900">
       <header className="border-b border-black/10">
@@ -140,10 +144,10 @@ function SignInPage() {
                 </p>
 
                 <Link
-                  to="/join"
+                  to={signedInDestination}
                   className="mt-4 inline-flex font-semibold text-kudu-green hover:underline"
                 >
-                  Continue to account choices
+                  {signedInActionLabel}
                 </Link>
               </div>
             )}

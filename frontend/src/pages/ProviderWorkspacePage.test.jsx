@@ -5,19 +5,8 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import {
-  MemoryRouter,
-  Route,
-  Routes,
-} from "react-router-dom";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-  vi,
-} from "vitest";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import AuthProvider from "../auth/AuthProvider";
 import ProviderWorkspacePage from "./ProviderWorkspacePage";
 import {
@@ -65,14 +54,26 @@ function deferred() {
   let resolve;
   let reject;
 
-  const promise = new Promise(
-    (resolvePromise, rejectPromise) => {
-      resolve = resolvePromise;
-      reject = rejectPromise;
-    }
-  );
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
 
   return { promise, resolve, reject };
+}
+
+function PublicCatalogueDestination() {
+  const location = useLocation();
+
+  return (
+    <>
+      <h1>Public catalogue</h1>
+
+      {location.state?.signedOut === true && (
+        <p>You have signed out successfully.</p>
+      )}
+    </>
+  );
 }
 
 function renderWorkspace() {
@@ -80,23 +81,14 @@ function renderWorkspace() {
     <AuthProvider>
       <MemoryRouter initialEntries={["/provider"]}>
         <Routes>
-          <Route
-            path="/provider"
-            element={<ProviderWorkspacePage />}
-          />
+          <Route path="/provider" element={<ProviderWorkspacePage />} />
 
-          <Route
-            path="/"
-            element={<h1>Public catalogue</h1>}
-          />
+          <Route path="/" element={<PublicCatalogueDestination />} />
 
-          <Route
-            path="/sign-in"
-            element={<h1>Sign-in page</h1>}
-          />
+          <Route path="/sign-in" element={<h1>Sign-in page</h1>} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 }
 
@@ -106,35 +98,46 @@ async function emitSession(event, session) {
   });
 }
 
+function confirmWorkspaceSignOut() {
+  // First click: opens the confirmation panel
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Sign out",
+    }),
+  );
+
+  // Second click: confirms and actually signs out
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Yes, sign out",
+    }),
+  );
+}
+
 describe("Protected provider workspace session handling", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.sessionStorage.clear();
     authMocks.callback = null;
 
-    authMocks.onAuthStateChange.mockImplementation(
-      (callback) => {
-        authMocks.callback = callback;
+    authMocks.onAuthStateChange.mockImplementation((callback) => {
+      authMocks.callback = callback;
 
-        return {
-          data: {
-            subscription: {
-              unsubscribe: authMocks.unsubscribe,
-            },
+      return {
+        data: {
+          subscription: {
+            unsubscribe: authMocks.unsubscribe,
           },
-        };
-      }
-    );
+        },
+      };
+    });
 
     authMocks.signOut.mockResolvedValue({
       error: null,
     });
 
     enrolCurrentUserAsProvider.mockResolvedValue({
-      roles: [
-        "property_provider",
-        "property_seeker",
-      ],
+      roles: ["property_provider", "property_seeker"],
     });
 
     getProviderWorkspace.mockResolvedValue({
@@ -154,7 +157,7 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Preparing your workspace",
-      })
+      }),
     ).toBeTruthy();
 
     expect(getProviderWorkspace).not.toHaveBeenCalled();
@@ -167,13 +170,11 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Sign-in page",
-      })
+      }),
     ).toBeTruthy();
 
     expect(getProviderWorkspace).not.toHaveBeenCalled();
-    expect(
-      enrolCurrentUserAsProvider
-    ).not.toHaveBeenCalled();
+    expect(enrolCurrentUserAsProvider).not.toHaveBeenCalled();
   });
 
   test("renders the workspace after the endpoint confirms access", async () => {
@@ -183,19 +184,14 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Welcome, Test Provider",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(getProviderWorkspace).toHaveBeenCalledWith(
-      "mock-provider-token",
-      {
-        signal: expect.any(AbortSignal),
-      }
-    );
+    expect(getProviderWorkspace).toHaveBeenCalledWith("mock-provider-token", {
+      signal: expect.any(AbortSignal),
+    });
 
-    expect(
-      enrolCurrentUserAsProvider
-    ).not.toHaveBeenCalled();
+    expect(enrolCurrentUserAsProvider).not.toHaveBeenCalled();
   });
 
   test("completes provider intent before loading the workspace", async () => {
@@ -208,16 +204,12 @@ describe("Protected provider workspace session handling", () => {
       name: "Welcome, Test Provider",
     });
 
-    expect(
-      enrolCurrentUserAsProvider
-    ).toHaveBeenCalledTimes(1);
+    expect(enrolCurrentUserAsProvider).toHaveBeenCalledTimes(1);
 
     expect(getProviderWorkspace).toHaveBeenCalledTimes(1);
 
-    expect(
-      enrolCurrentUserAsProvider.mock.invocationCallOrder[0]
-    ).toBeLessThan(
-      getProviderWorkspace.mock.invocationCallOrder[0]
+    expect(enrolCurrentUserAsProvider.mock.invocationCallOrder[0]).toBeLessThan(
+      getProviderWorkspace.mock.invocationCallOrder[0],
     );
 
     expect(readRegistrationIntent()).toBe("seeker");
@@ -234,12 +226,10 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Provider access is required",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
   });
 
   test("a 401 provides a separate sign-in-again action", async () => {
@@ -253,12 +243,10 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Please sign in again",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
 
     expect(authMocks.signOut).not.toHaveBeenCalled();
 
@@ -266,7 +254,7 @@ describe("Protected provider workspace session handling", () => {
       fireEvent.click(
         screen.getByRole("button", {
           name: "Sign in again",
-        })
+        }),
       );
     });
 
@@ -277,8 +265,55 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Sign-in page",
-      })
+      }),
     ).toBeTruthy();
+  });
+
+  test("asks for confirmation before signing out and allows cancellation", async () => {
+    renderWorkspace();
+    await emitSession("INITIAL_SESSION", makeSession());
+
+    await screen.findByRole("heading", {
+      name: "Welcome, Test Provider",
+    });
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: "Sign out",
+        }),
+      );
+    });
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Are you sure you want to sign out?",
+      }),
+    ).toBeTruthy();
+
+    expect(authMocks.signOut).not.toHaveBeenCalled();
+
+    const staySignedInButton = screen.getByRole("button", {
+      name: "Stay signed in",
+    });
+
+    expect(staySignedInButton).toHaveFocus();
+
+    fireEvent.click(staySignedInButton);
+
+    expect(
+      screen.queryByRole("heading", {
+        name: "Are you sure you want to sign out?",
+      }),
+    ).toBeNull();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Welcome, Test Provider",
+      }),
+    ).toBeTruthy();
+
+    expect(authMocks.signOut).not.toHaveBeenCalled();
   });
 
   test("sign-out clears intent and returns to public browsing", async () => {
@@ -291,23 +326,17 @@ describe("Protected provider workspace session handling", () => {
 
     storeRegistrationIntent("provider");
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "Sign out",
-        })
-      );
-    });
+    confirmWorkspaceSignOut();
 
     expect(
       await screen.findByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.getByText("You have signed out successfully.")).toBeTruthy();
+
+    expect(screen.queryByText("Property drafts")).toBeNull();
 
     expect(readRegistrationIntent()).toBe("seeker");
     expect(authMocks.signOut).toHaveBeenCalledTimes(1);
@@ -325,26 +354,20 @@ describe("Protected provider workspace session handling", () => {
       name: "Welcome, Test Provider",
     });
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Sign out",
-      })
-    );
+    confirmWorkspaceSignOut();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
 
     expect(
       screen.getByRole("heading", {
         name: "Signing you out",
-      })
+      }),
     ).toBeTruthy();
 
     expect(
       screen.getByRole("button", {
         name: "Signing out...",
-      }).disabled
+      }).disabled,
     ).toBe(true);
 
     await act(async () => {
@@ -354,7 +377,7 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeTruthy();
   });
 
@@ -370,42 +393,28 @@ describe("Protected provider workspace session handling", () => {
       name: "Welcome, Test Provider",
     });
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "Sign out",
-        })
-      );
-    });
+    confirmWorkspaceSignOut();
 
     expect(
       await screen.findByText(
-        "We could not complete sign-out. Please check your connection and try again."
-      )
+        "We could not complete sign-out. Please check your connection and try again.",
+      ),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Private internal diagnostic")
-    ).toBeNull();
+    expect(screen.queryByText("Private internal diagnostic")).toBeNull();
 
     expect(
       screen.queryByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeNull();
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "Sign out",
-        })
-      );
-    });
+    confirmWorkspaceSignOut();
 
     expect(
       await screen.findByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeTruthy();
   });
 
@@ -419,13 +428,13 @@ describe("Protected provider workspace session handling", () => {
       "INITIAL_SESSION",
       makeSession({
         expires_at: Date.now() / 1000 + 2,
-      })
+      }),
     );
 
     expect(
       screen.getByRole("heading", {
         name: "Welcome, Test Provider",
-      })
+      }),
     ).toBeTruthy();
 
     await act(async () => {
@@ -435,12 +444,10 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Sign-in page",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
   });
 
   test("token refresh hides old data until access is confirmed again", async () => {
@@ -453,25 +460,21 @@ describe("Protected provider workspace session handling", () => {
       name: "Welcome, Test Provider",
     });
 
-    getProviderWorkspace.mockReturnValueOnce(
-      pending.promise
-    );
+    getProviderWorkspace.mockReturnValueOnce(pending.promise);
 
     await emitSession(
       "TOKEN_REFRESHED",
       makeSession({
         access_token: "mock-fresh-token",
-      })
+      }),
     );
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
 
     expect(
       screen.getByRole("heading", {
         name: "Preparing your workspace",
-      })
+      }),
     ).toBeTruthy();
 
     await act(async () => {
@@ -483,7 +486,7 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Welcome, Confirmed Provider",
-      })
+      }),
     ).toBeTruthy();
   });
 
@@ -497,9 +500,7 @@ describe("Protected provider workspace session handling", () => {
       name: "Welcome, Test Provider",
     });
 
-    getProviderWorkspace.mockReturnValueOnce(
-      pending.promise
-    );
+    getProviderWorkspace.mockReturnValueOnce(pending.promise);
 
     await emitSession(
       "SIGNED_IN",
@@ -508,13 +509,13 @@ describe("Protected provider workspace session handling", () => {
           id: "94000000-0000-4000-8000-000000000002",
         },
         access_token: "mock-second-provider-token",
-      })
+      }),
     );
 
     expect(
       screen.queryByRole("heading", {
         name: "Welcome, Test Provider",
-      })
+      }),
     ).toBeNull();
 
     await act(async () => {
@@ -526,30 +527,21 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Welcome, Second Provider",
-      })
+      }),
     ).toBeTruthy();
   });
 
   test("a late response cannot restore content after logout", async () => {
     const pending = deferred();
 
-    getProviderWorkspace.mockReturnValueOnce(
-      pending.promise
-    );
+    getProviderWorkspace.mockReturnValueOnce(pending.promise);
 
     renderWorkspace();
     await emitSession("INITIAL_SESSION", makeSession());
 
-    const requestSignal =
-      getProviderWorkspace.mock.calls[0][1].signal;
+    const requestSignal = getProviderWorkspace.mock.calls[0][1].signal;
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "Sign out",
-        })
-      );
-    });
+    confirmWorkspaceSignOut();
 
     expect(requestSignal.aborted).toBe(true);
 
@@ -562,34 +554,31 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeTruthy();
 
     expect(
       screen.queryByRole("heading", {
         name: "Welcome, Late Provider",
-      })
+      }),
     ).toBeNull();
   });
 
   test("a stale 401 cannot replace a refreshed workspace", async () => {
     const pending = deferred();
 
-    getProviderWorkspace.mockReturnValueOnce(
-      pending.promise
-    );
+    getProviderWorkspace.mockReturnValueOnce(pending.promise);
 
     renderWorkspace();
     await emitSession("INITIAL_SESSION", makeSession());
 
-    const oldSignal =
-      getProviderWorkspace.mock.calls[0][1].signal;
+    const oldSignal = getProviderWorkspace.mock.calls[0][1].signal;
 
     await emitSession(
       "TOKEN_REFRESHED",
       makeSession({
         access_token: "mock-fresh-token",
-      })
+      }),
     );
 
     await screen.findByRole("heading", {
@@ -605,13 +594,13 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Welcome, Test Provider",
-      })
+      }),
     ).toBeTruthy();
 
     expect(
       screen.queryByRole("heading", {
         name: "Please sign in again",
-      })
+      }),
     ).toBeNull();
 
     expect(authMocks.signOut).not.toHaveBeenCalled();
@@ -622,20 +611,18 @@ describe("Protected provider workspace session handling", () => {
 
     storeRegistrationIntent("provider");
 
-    enrolCurrentUserAsProvider.mockReturnValueOnce(
-      pending.promise
-    );
+    enrolCurrentUserAsProvider.mockReturnValueOnce(pending.promise);
 
     renderWorkspace();
     await emitSession("INITIAL_SESSION", makeSession());
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "Sign out",
-        })
-      );
-    });
+    confirmWorkspaceSignOut();
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Public catalogue",
+      }),
+    ).toBeTruthy();
 
     storeRegistrationIntent("provider");
 
@@ -651,7 +638,7 @@ describe("Protected provider workspace session handling", () => {
     expect(
       screen.getByRole("heading", {
         name: "Public catalogue",
-      })
+      }),
     ).toBeTruthy();
   });
 
@@ -664,11 +651,9 @@ describe("Protected provider workspace session handling", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Workspace temporarily unavailable",
-      })
+      }),
     ).toBeTruthy();
 
-    expect(
-      screen.queryByText("Property drafts")
-    ).toBeNull();
+    expect(screen.queryByText("Property drafts")).toBeNull();
   });
 });

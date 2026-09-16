@@ -6,14 +6,7 @@ import {
   screen,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-  vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import SignInPage from "./SignInPage";
 
 const authMocks = vi.hoisted(() => ({
@@ -43,14 +36,14 @@ function renderSignIn(entry = "/sign-in?intent=provider") {
   return render(
     <MemoryRouter initialEntries={[entry]}>
       <SignInPage />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
 async function clickSignIn() {
   await act(async () => {
     fireEvent.click(
-      screen.getByRole("button", { name: "Continue with Google" })
+      screen.getByRole("button", { name: "Continue with Google" }),
     );
   });
 }
@@ -78,11 +71,11 @@ describe("Sign-in error recovery", () => {
       renderSignIn(`/sign-in?intent=${intent}`);
 
       expect(
-        screen.getByText(`You are continuing as a property ${intent}.`)
+        screen.getByText(`You are continuing as a property ${intent}.`),
       ).toBeInTheDocument();
       expect(window.sessionStorage.getItem(storageKey)).toBe(intent);
       expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
-    }
+    },
   );
 
   test.each(["admin", "https://attacker.example"])(
@@ -91,11 +84,11 @@ describe("Sign-in error recovery", () => {
       renderSignIn(`/sign-in?intent=${encodeURIComponent(intent)}`);
 
       expect(
-        screen.getByText("You are continuing as a property seeker.")
+        screen.getByText("You are continuing as a property seeker."),
       ).toBeInTheDocument();
       expect(window.sessionStorage.getItem(storageKey)).toBe("seeker");
       expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
-    }
+    },
   );
 
   test("waits for the session before offering sign-in", () => {
@@ -106,13 +99,13 @@ describe("Sign-in error recovery", () => {
     renderSignIn();
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Checking your session..."
+      "Checking your session...",
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
   });
 
-  test("offers account choices when already signed in", () => {
+  test("offers the provider workspace when already signed in with provider intent", () => {
     authMocks.useAuth.mockReturnValue({
       isAuthenticated: true,
       isLoading: false,
@@ -120,23 +113,41 @@ describe("Sign-in error recovery", () => {
     renderSignIn();
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "You are already signed in."
+      "You are already signed in.",
     );
     expect(
-      screen.getByRole("link", { name: "Continue to account choices" })
-    ).toHaveAttribute("href", "/join");
+      screen.getByRole("link", {
+        name: "Continue to provider workspace",
+      }),
+    ).toHaveAttribute("href", "/provider");
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
   });
 
+  test("offers property browsing when already signed in with seeker intent", () => {
+    authMocks.useAuth.mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    renderSignIn("/sign-in?intent=seeker");
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "You are already signed in.",
+    );
+    expect(
+      screen.getByRole("link", {
+        name: "Continue to property browsing",
+      }),
+    ).toHaveAttribute("href", "/properties");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
+  });
   test("saves intent before OAuth and ignores an arbitrary return URL", async () => {
     authMocks.signInWithOAuth.mockImplementation(async () => {
       expect(window.sessionStorage.getItem(storageKey)).toBe("provider");
       return { error: null };
     });
-    renderSignIn(
-      "/sign-in?intent=provider&returnTo=https://attacker.example"
-    );
+    renderSignIn("/sign-in?intent=provider&returnTo=https://attacker.example");
     await clickSignIn();
 
     expect(authMocks.signInWithOAuth).toHaveBeenCalledTimes(1);
@@ -148,7 +159,7 @@ describe("Sign-in error recovery", () => {
     });
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Connecting to Google..." })
+      screen.getByRole("button", { name: "Connecting to Google..." }),
     ).toBeDisabled();
   });
 
@@ -160,7 +171,7 @@ describe("Sign-in error recovery", () => {
     authMocks.signInWithOAuth.mockReturnValue(pendingSignIn);
     renderSignIn();
     fireEvent.click(
-      screen.getByRole("button", { name: "Continue with Google" })
+      screen.getByRole("button", { name: "Continue with Google" }),
     );
 
     const pendingButton = screen.getByRole("button", {
@@ -193,9 +204,9 @@ describe("Sign-in error recovery", () => {
       expect(document.body).not.toHaveTextContent(privateDetails);
       expect(window.sessionStorage.getItem(storageKey)).toBeNull();
       expect(
-        screen.getByRole("button", { name: "Continue with Google" })
+        screen.getByRole("button", { name: "Continue with Google" }),
       ).toBeEnabled();
-    }
+    },
   );
 
   test("clears the previous error and saves intent again on retry", async () => {
@@ -214,21 +225,21 @@ describe("Sign-in error recovery", () => {
   });
 
   test("blocked storage prevents OAuth and allows retry after recovery", async () => {
-    const write = vi.spyOn(Storage.prototype, "setItem").mockImplementation(
-      () => {
+    const write = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
         throw new Error("Private storage write diagnostic");
-      }
-    );
+      });
     renderSignIn();
     await clickSignIn();
 
     expect(screen.getByRole("alert")).toHaveTextContent(safeStorageError);
     expect(document.body).not.toHaveTextContent(
-      "Private storage write diagnostic"
+      "Private storage write diagnostic",
     );
     expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
     expect(
-      screen.getByRole("button", { name: "Continue with Google" })
+      screen.getByRole("button", { name: "Continue with Google" }),
     ).toBeEnabled();
 
     write.mockRestore();
@@ -248,11 +259,11 @@ describe("Sign-in error recovery", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent(safeStorageError);
     expect(document.body).not.toHaveTextContent(
-      "Private inaccessible storage diagnostic"
+      "Private inaccessible storage diagnostic",
     );
     expect(authMocks.signInWithOAuth).not.toHaveBeenCalled();
     expect(
-      screen.getByRole("button", { name: "Continue with Google" })
+      screen.getByRole("button", { name: "Continue with Google" }),
     ).toBeEnabled();
   });
 
@@ -269,7 +280,7 @@ describe("Sign-in error recovery", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(safeSignInError);
     expect(document.body).not.toHaveTextContent("Private cleanup diagnostic");
     expect(
-      screen.getByRole("button", { name: "Continue with Google" })
+      screen.getByRole("button", { name: "Continue with Google" }),
     ).toBeEnabled();
 
     await clickSignIn();
