@@ -6,17 +6,22 @@ import {
   readRegistrationIntent,
 } from "../auth/registrationIntent";
 
-const authErrorParameters = ["error", "error_code", "error_description"];
+const authErrorParameters = [
+  "error",
+  "error_code",
+  "error_description",
+];
 
 function containsAuthenticationError(search, hash) {
   const searchParameters = new URLSearchParams(search);
   const hashParameters = new URLSearchParams(
-    hash.startsWith("#") ? hash.slice(1) : hash,
+    hash.startsWith("#") ? hash.slice(1) : hash
   );
 
   return authErrorParameters.some(
     (parameter) =>
-      searchParameters.has(parameter) || hashParameters.has(parameter),
+      searchParameters.has(parameter) ||
+      hashParameters.has(parameter)
   );
 }
 
@@ -24,33 +29,57 @@ function AuthCallbackPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
-  const registrationIntent = readRegistrationIntent();
+
+  let registrationIntent = "seeker";
+  let intentReadFailed = false;
+
+  try {
+    registrationIntent = readRegistrationIntent();
+  } catch {
+    intentReadFailed = true;
+  }
 
   const callbackHasError = containsAuthenticationError(
     location.search,
-    location.hash,
+    location.hash
   );
 
   const authenticationFailed =
-    callbackHasError || (!isLoading && !isAuthenticated);
+    callbackHasError ||
+    intentReadFailed ||
+    (!isLoading && !isAuthenticated);
+
+  const retryDestination = intentReadFailed
+    ? "/join"
+    : `/sign-in?intent=${registrationIntent}`;
 
   useEffect(() => {
-    if (!callbackHasError && !isLoading && isAuthenticated) {
-      const destination = registrationIntent === "provider" ? "/provider" : "/";
-
-      if (registrationIntent === "seeker") {
-        clearRegistrationIntent();
-      }
-
-      navigate(destination, { replace: true });
+    if (
+      callbackHasError ||
+      intentReadFailed ||
+      isLoading ||
+      !isAuthenticated
+    ) {
+      return;
     }
+
+    const destination =
+      registrationIntent === "provider" ? "/provider" : "/";
+
+    if (registrationIntent === "seeker") {
+      clearRegistrationIntent();
+    }
+
+    navigate(destination, { replace: true });
   }, [
     callbackHasError,
+    intentReadFailed,
     isAuthenticated,
     isLoading,
     navigate,
     registrationIntent,
   ]);
+
   return (
     <div className="min-h-screen bg-kudu-ivory text-stone-900">
       <header className="border-b border-black/10">
@@ -122,15 +151,18 @@ function AuthCallbackPage() {
                 className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-4 leading-7 text-red-800"
                 role="alert"
               >
-                Your account was not changed. Return to the sign-in page and try
-                again.
+                {intentReadFailed
+                  ? "Your browser could not read sign-in progress. Please check its site-storage settings, then choose your account type again."
+                  : "Please return to sign in and try again. Public property browsing remains available."}
               </p>
 
               <Link
-                to={`/sign-in?intent=${registrationIntent}`}
+                to={retryDestination}
                 className="mt-8 inline-flex min-h-12 items-center justify-center rounded-lg bg-kudu-green px-6 font-semibold text-white transition hover:opacity-90"
               >
-                Return to sign in
+                {intentReadFailed
+                  ? "Return to account choices"
+                  : "Return to sign in"}
               </Link>
             </>
           )}

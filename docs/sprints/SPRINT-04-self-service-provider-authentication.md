@@ -410,7 +410,7 @@ reviewed for the following sprint.
 | S4-029 | Add the protected provider-workspace endpoint          | Done    |
 | S4-030 | Build the protected provider-workspace foundation      | Done    |
 | S4-031 | Add sign-out and session-expiry handling               | Done    |
-| S4-032 | Add controlled authentication error states             | Pending |
+| S4-032 | Add controlled authentication error states             | Done    |
 | S4-033 | Add authentication-specific rate limiting              | Pending |
 | S4-034 | Add frontend authentication tests                      | Pending |
 | S4-035 | Add backend authentication and authorization tests     | Pending |

@@ -29,7 +29,11 @@ function readRegistrationIntent() {
 }
 
 function clearRegistrationIntent() {
-  window.sessionStorage.removeItem(registrationIntentStorageKey);
+  try {
+    window.sessionStorage.removeItem(registrationIntentStorageKey);
+  } catch {
+    // This UI hint is not a credential. Cleanup must not block sign-out.
+  }
 }
 
 export {
