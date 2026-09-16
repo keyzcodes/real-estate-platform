@@ -415,7 +415,7 @@ reviewed for the following sprint.
 | S4-034 | Add frontend authentication tests                      | Done    |
 | S4-035 | Add backend authentication and authorization tests     | Done    |
 | S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
-| S4-037 | Re-run public catalogue regression tests               | Pending |
+| S4-037 | Re-run public catalogue regression tests               | Done    |
 | S4-038 | Review responsive and accessible authentication UI     | Pending |
 | S4-039 | Review Supabase URL and redirect configuration         | Pending |
 | S4-040 | Configure the approved zero-cost authentication method | Pending |
