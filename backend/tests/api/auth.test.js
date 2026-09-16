@@ -92,6 +92,42 @@ describe("Current account API", () => {
 
     expect(response.body).not.toHaveProperty("data");
   });
+  test("sanitizes unexpected authentication failures", async () => {
+    const privateError = new Error("Private authentication-service diagnostic");
+
+    mockAuthenticateRequest.mockImplementation((req, res, next) =>
+      next(privateError),
+    );
+
+    const consoleError = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    try {
+      const response = await request(app)
+        .get("/api/v1/auth/me")
+        .set("Authorization", "Bearer valid-access-token")
+        .expect("Content-Type", /json/)
+        .expect(500);
+
+      expect(response.body).toEqual({
+        success: false,
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "The server could not complete the request.",
+        },
+      });
+
+      expect(JSON.stringify(response.body)).not.toContain(privateError.message);
+
+      expect(consoleError).toHaveBeenCalledWith(
+        "Unhandled application error:",
+        privateError,
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
   describe("Provider enrolment API", () => {
     let mockRpc;
 
