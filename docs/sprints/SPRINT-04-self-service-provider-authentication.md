@@ -411,7 +411,7 @@ reviewed for the following sprint.
 | S4-030 | Build the protected provider-workspace foundation      | Done    |
 | S4-031 | Add sign-out and session-expiry handling               | Done    |
 | S4-032 | Add controlled authentication error states             | Done    |
-| S4-033 | Add authentication-specific rate limiting              | Pending |
+| S4-033 | Add authentication-specific rate limiting              | Done    |
 | S4-034 | Add frontend authentication tests                      | Pending |
 | S4-035 | Add backend authentication and authorization tests     | Pending |
 | S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
