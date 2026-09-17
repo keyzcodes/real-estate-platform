@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned
+Completed
 
 ## Planning Date
 
@@ -17,6 +17,14 @@ Sunday Jime
 `docs/sprint-04-closed-provider-pilot`
 
 ## Proposed Implementation Branch
+
+## Completion Date
+
+17 September 2026
+
+## Implementation Pull Request
+
+[Pull Request #8: Self-service provider authentication and protected access](https://github.com/keyzcodes/real-estate-platform/pull/8)
 
 `feature/self-service-provider-authentication`
 
@@ -377,54 +385,54 @@ reviewed for the following sprint.
 
 ## Sprint Backlog
 
-| ID     | Task                                                   | Status  |
-| ------ | ------------------------------------------------------ | ------- |
-| S4-001 | Review profiles, roles, triggers and current RLS       | Done    |
-| S4-002 | Review Supabase authentication configuration           | Done    |
-| S4-003 | Confirm the existing administrator account             | Done    |
-| S4-004 | Record ADR-010                                         | Done    |
-| S4-005 | Update the product requirements                        | Done    |
-| S4-006 | Update the README status and roadmap                   | Done    |
-| S4-007 | Create the Sprint 4 plan                               | Done    |
-| S4-008 | Review and merge the Sprint 4 planning branch          | Done    |
-| S4-009 | Create the Sprint 4 implementation branch              | Done    |
-| S4-010 | Add frontend Supabase dependency                       | Done    |
-| S4-011 | Add documented frontend Supabase environment variables | Done    |
-| S4-012 | Create the frontend Supabase client                    | Done    |
-| S4-013 | Create authentication session context                  | Done    |
-| S4-014 | Build the Join page                                    | Done    |
-| S4-015 | Build the generic Sign-in page                         | Done    |
-| S4-016 | Add authentication callback handling                   | Done    |
-| S4-017 | Preserve provider-registration intent safely           | done    |
-| S4-018 | Add automatic provider enrolment migration             | Done    |
-| S4-019 | Restrict provider enrolment to the authenticated UUID  | Done    |
-| S4-020 | Make provider enrolment idempotent                     | Done    |
-| S4-021 | Add backend bearer-token parsing                       | Done    |
-| S4-022 | Add backend access-token validation                    | Done    |
-| S4-023 | Add active-profile enforcement                         | Done    |
-| S4-024 | Add authoritative role lookup                          | Done    |
-| S4-025 | Add request-scoped authenticated Supabase client       | Done    |
-| S4-026 | Add `GET /api/v1/auth/me`                              | Done    |
-| S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Done    |
-| S4-028 | Add provider-role authorization middleware             | Done    |
-| S4-029 | Add the protected provider-workspace endpoint          | Done    |
-| S4-030 | Build the protected provider-workspace foundation      | Done    |
-| S4-031 | Add sign-out and session-expiry handling               | Done    |
-| S4-032 | Add controlled authentication error states             | Done    |
-| S4-033 | Add authentication-specific rate limiting              | Done    |
-| S4-034 | Add frontend authentication tests                      | Done    |
-| S4-035 | Add backend authentication and authorization tests     | Done    |
-| S4-036 | Add pgTAP provider-enrolment and role tests            | Done    |
-| S4-037 | Re-run public catalogue regression tests               | Done    |
-| S4-038 | Review responsive and accessible authentication UI     | Done    |
-| S4-039 | Review Supabase URL and redirect configuration         | Done    |
-| S4-040 | Configure the approved zero-cost authentication method | Done    |
-| S4-041 | Perform controlled local manual verification           | Done    |
-| S4-042 | Update security and API documentation                  | Done    |
-| S4-043 | Review the complete implementation diff                | Done    |
-| S4-044 | Open and review the Sprint 4 implementation PR         | Pending |
-| S4-045 | Merge only after all required checks pass              | Pending |
-| S4-046 | Complete the Sprint 4 review and retrospective         | Pending |
+| ID     | Task                                                   | Status |
+| ------ | ------------------------------------------------------ | ------ |
+| S4-001 | Review profiles, roles, triggers and current RLS       | Done   |
+| S4-002 | Review Supabase authentication configuration           | Done   |
+| S4-003 | Confirm the existing administrator account             | Done   |
+| S4-004 | Record ADR-010                                         | Done   |
+| S4-005 | Update the product requirements                        | Done   |
+| S4-006 | Update the README status and roadmap                   | Done   |
+| S4-007 | Create the Sprint 4 plan                               | Done   |
+| S4-008 | Review and merge the Sprint 4 planning branch          | Done   |
+| S4-009 | Create the Sprint 4 implementation branch              | Done   |
+| S4-010 | Add frontend Supabase dependency                       | Done   |
+| S4-011 | Add documented frontend Supabase environment variables | Done   |
+| S4-012 | Create the frontend Supabase client                    | Done   |
+| S4-013 | Create authentication session context                  | Done   |
+| S4-014 | Build the Join page                                    | Done   |
+| S4-015 | Build the generic Sign-in page                         | Done   |
+| S4-016 | Add authentication callback handling                   | Done   |
+| S4-017 | Preserve provider-registration intent safely           | done   |
+| S4-018 | Add automatic provider enrolment migration             | Done   |
+| S4-019 | Restrict provider enrolment to the authenticated UUID  | Done   |
+| S4-020 | Make provider enrolment idempotent                     | Done   |
+| S4-021 | Add backend bearer-token parsing                       | Done   |
+| S4-022 | Add backend access-token validation                    | Done   |
+| S4-023 | Add active-profile enforcement                         | Done   |
+| S4-024 | Add authoritative role lookup                          | Done   |
+| S4-025 | Add request-scoped authenticated Supabase client       | Done   |
+| S4-026 | Add `GET /api/v1/auth/me`                              | Done   |
+| S4-027 | Add `POST /api/v1/auth/provider-enrolment`             | Done   |
+| S4-028 | Add provider-role authorization middleware             | Done   |
+| S4-029 | Add the protected provider-workspace endpoint          | Done   |
+| S4-030 | Build the protected provider-workspace foundation      | Done   |
+| S4-031 | Add sign-out and session-expiry handling               | Done   |
+| S4-032 | Add controlled authentication error states             | Done   |
+| S4-033 | Add authentication-specific rate limiting              | Done   |
+| S4-034 | Add frontend authentication tests                      | Done   |
+| S4-035 | Add backend authentication and authorization tests     | Done   |
+| S4-036 | Add pgTAP provider-enrolment and role tests            | Done   |
+| S4-037 | Re-run public catalogue regression tests               | Done   |
+| S4-038 | Review responsive and accessible authentication UI     | Done   |
+| S4-039 | Review Supabase URL and redirect configuration         | Done   |
+| S4-040 | Configure the approved zero-cost authentication method | Done   |
+| S4-041 | Perform controlled local manual verification           | Done   |
+| S4-042 | Update security and API documentation                  | Done   |
+| S4-043 | Review the complete implementation diff                | Done   |
+| S4-044 | Open and review the Sprint 4 implementation PR         | Done   |
+| S4-045 | Merge only after all required checks pass              | Done   |
+| S4-046 | Complete the Sprint 4 review and retrospective         | Done   |
 
 ## Testing Strategy
 
@@ -558,36 +566,36 @@ Mitigation:
 
 Sprint 4 is complete when:
 
-- [ ] The planning branch has been reviewed and merged.
-- [ ] The implementation branch has been created from current `main`.
-- [ ] Public catalogue access still works without authentication.
-- [ ] The Join page offers seeker and provider paths.
-- [ ] Sign-in, callback and sign-out work.
-- [ ] Frontend session restoration works.
-- [ ] Provider enrolment is automatic.
-- [ ] Provider enrolment cannot grant administrator access.
-- [ ] Provider enrolment is idempotent.
-- [ ] Express validates access tokens.
-- [ ] Suspended profiles are denied.
-- [ ] Role authorization uses authoritative database records.
-- [ ] Seekers cannot access provider endpoints.
-- [ ] Providers can access the protected provider workspace.
-- [ ] No property-write capability has been accidentally exposed.
-- [ ] Existing administrator access remains unchanged.
-- [ ] No paid service has been enabled.
-- [ ] Frontend authentication tests pass.
-- [ ] Backend authentication tests pass.
-- [ ] PostgreSQL authorization tests pass.
-- [ ] Existing frontend tests pass.
-- [ ] Existing backend tests pass.
-- [ ] Existing public RLS tests pass.
-- [ ] Frontend lint passes.
-- [ ] Frontend production build passes.
-- [ ] Required documentation is updated.
-- [ ] The complete diff has been reviewed.
-- [ ] Required CI checks pass.
-- [ ] The implementation PR is reviewed and merged.
-- [ ] The sprint review and retrospective are completed.
+- [x] The planning branch has been reviewed and merged.
+- [x]The implementation branch has been created from current `main`.
+- [x]Public catalogue access still works without authentication.
+- [x]The Join page offers seeker and provider paths.
+- [x]Sign-in, callback and sign-out work.
+- [x]Frontend session restoration works.
+- [x]Provider enrolment is automatic.
+- [x]Provider enrolment cannot grant administrator access.
+- [x]Provider enrolment is idempotent.
+- [x]Express validates access tokens.
+- [x]Profiles whose account status is not active are denied.
+- [x]Role authorization uses authoritative database records.
+- [x]Seekers cannot access provider endpoints.
+- [x]Providers can access the protected provider workspace.
+- [x]No property-write capability has been accidentally exposed.
+- [x]Existing administrator access remains unchanged.
+- [x]No paid service has been enabled.
+- [x]Frontend authentication tests pass.
+- [x]Backend authentication tests pass.
+- [x]PostgreSQL authorization tests pass.
+- [x]Existing frontend tests pass.
+- [x]Existing backend tests pass.
+- [x]Existing public RLS tests pass.
+- [x]Frontend lint passes.
+- [x]Frontend production build passes.
+- [x]Required documentation is updated.
+- [x]The complete diff has been reviewed.
+- [x]Required CI checks pass.
+- [x]The implementation PR is reviewed and merged.
+- [x] The sprint review and retrospective are completed.
 
 ## Expected Sprint Result
 
@@ -597,3 +605,108 @@ new provider will be enrolled automatically into a protected workspace.
 
 The sprint will establish the trusted identity and authorization foundation
 required before provider property-entry forms and Cloudinary uploads are added.
+
+## Sprint Review
+
+Sprint 4 delivered the authentication and authorization foundation required for
+self-service provider access while preserving anonymous public catalogue
+browsing.
+
+The completed implementation includes:
+
+- Google OAuth through Supabase Auth
+- Separate seeker and provider entry paths
+- Safe registration-intent handling
+- Frontend session restoration, refresh and expiry protection
+- Controlled authentication callback recovery
+- A protected provider workspace
+- Accessible sign-out confirmation and completion feedback
+- Backend bearer-token validation
+- Active-profile and authoritative database-role checks
+- Request-scoped Supabase clients that preserve Row Level Security
+- Retry-safe provider enrolment that can grant only `property_provider`
+- Account and provider-enrolment rate limits
+- Authentication API and system-architecture documentation
+
+Provider access remains separate from provider verification, property
+verification and publication. No provider property-write, media-upload,
+administrator, payment or booking capability was introduced during this
+Sprint.
+
+### Verification Results
+
+The completed Sprint was verified through:
+
+- 113 passing frontend tests
+- 64 passing backend tests
+- Passing frontend ESLint
+- Passing frontend production build
+- Passing provider-enrolment pgTAP security tests
+- Passing public catalogue and public Row Level Security regressions
+- Passing required GitHub Actions checks
+- A clean `git diff --check`
+- A changed-file secret guard
+- A dangerous-pattern static security scan
+- Controlled local Google OAuth verification
+- Manual provider-workspace and sign-out verification
+
+The implementation was reviewed and merged into `main` through Pull Request
+#8. Merge commit `8fa03d8` contains the completed Sprint implementation.
+
+The corrective migration
+`20260917133000_require_active_provider_enrolment.sql` was applied to the
+linked Supabase project after local and continuous-integration checks passed.
+Local and remote migration histories match, and the post-deployment dry run
+reports that the remote database is up to date.
+
+## Sprint Retrospective
+
+### What Went Well
+
+- Test-first development exposed regressions before changes were accepted.
+- Authentication, account status, roles and Row Level Security remained
+  separate security layers.
+- The OAuth rollout stayed limited to approved test users during development.
+- Public catalogue access remained available without authentication.
+- Controlled frontend errors avoided exposing private authentication details.
+- Manual UX testing identified missing sign-out confirmation and feedback.
+- Documentation was updated alongside the implementation rather than deferred.
+
+### Findings Corrected During Review
+
+The complete-diff review identified an authorization gap in the original
+provider-enrolment function. The function rejected suspended profiles but did
+not reject `pending_verification` or future inactive statuses. A forward-only
+migration replaced this deny-list rule with an allow-list rule requiring
+`account_status = 'active'`.
+
+The review also identified that unavailable browser session storage could stop
+an existing provider from loading the workspace. Registration intent is only a
+user-interface hint, so the workspace now continues to the authoritative
+backend role check when that storage cannot be read.
+
+The sign-out experience was strengthened with confirmation, cancellation,
+focus restoration, progress feedback, safe failure recovery and a temporary
+success announcement.
+
+### What Can Improve
+
+- Add a backend lint script so frontend and backend static analysis use a
+  consistent command.
+- Add browser end-to-end coverage before authentication is opened beyond the
+  controlled pilot.
+- Formalize the migration release checklist used during this Sprint.
+- Add a Content Security Policy before broader deployment to further reduce
+  browser-session exposure from cross-site scripting.
+- Continue keeping database migrations forward-only after they have reached a
+  shared environment.
+
+### Next Sprint Direction
+
+The next Sprint may build provider-owned property drafts on top of this
+authentication foundation. Ownership, protected workflow columns, exact
+location privacy and administrator-only publication must remain enforced
+before any provider property form is exposed.
+
+Cloudinary uploads, payments, bookings and unrestricted public provider signup
+remain outside the completed Sprint 4 boundary.
