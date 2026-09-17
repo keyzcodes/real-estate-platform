@@ -4,7 +4,10 @@ const helmet = require("helmet");
 const { rateLimit } = require("express-rate-limit");
 
 const amenityRoutes = require("./routes/amenityRoutes");
+const authRoutes = require("./routes/authRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
+const providerRoutes = require("./routes/providerRoutes");
+const { accountApiLimiter } = require("./middleware/rateLimiters");
 
 const app = express();
 
@@ -16,7 +19,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  })
+  }),
 );
 
 app.use(express.json({ limit: "100kb" }));
@@ -40,6 +43,9 @@ app.get("/api/v1/health", (req, res) => {
   });
 });
 
+app.use("/api/v1/auth", accountApiLimiter, authRoutes);
+
+app.use("/api/v1/provider", accountApiLimiter, providerRoutes);
 app.use("/api/v1/properties", propertyRoutes);
 app.use("/api/v1/amenities", amenityRoutes);
 

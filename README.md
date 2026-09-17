@@ -6,22 +6,42 @@ A transparency-first rental-property platform designed to help property seekers 
 
 The project is under active development.
 
-Latest completed milestones:
+Completed and merged milestones:
 
-```text
-Public property catalogue backend implemented and merged through Pull Request #1
-Sprint 1 closeout documentation merged through Pull Request #2
-Automated public catalogue testing foundation merged through Pull Request #3
-Sprint 3 public catalogue frontend merged through Pull Request #5
-Sprint 3 closeout documentation merged through Pull Request #6
-```
+- Public property catalogue backend through Pull Request #1
+- Sprint 1 closeout documentation through Pull Request #2
+- Automated public catalogue testing foundation through Pull Request #3
+- Sprint 3 public catalogue frontend through Pull Request #5
+- Sprint 3 closeout documentation through Pull Request #6
 
-The active planning work defines Sprint 4: self-service authentication and protected provider access.
+Sprint 4 self-service authentication and protected provider access have been
+implemented and verified on the
+`feature/self-service-provider-authentication` branch.
 
-The catalogue supports secure public property discovery, property details, pagination, validated filters, approximate locations, amenities and transparent rental fees.
+The Sprint 4 implementation includes:
 
-Automated coverage now protects the catalogue through Vitest frontend tests, React Testing Library interaction tests, frontend API-client tests, Jest unit tests, Supertest API tests, recursive privacy-contract assertions, PostgreSQL pgTAP tests, Row Level Security visibility tests and GitHub Actions.
+- Google OAuth through Supabase Auth
+- Separate seeker and provider account choices
+- Frontend session and expiry handling
+- Automatic, retry-safe provider enrolment
+- Backend bearer-token validation
+- Active-account enforcement
+- Database-authoritative role checks
+- A protected provider-workspace foundation
+- Authentication-specific rate limiting
+- Controlled sign-out confirmation and completion feedback
 
+The catalogue continues to support anonymous property discovery, property
+details, pagination, validated filters, approximate locations, amenities and
+transparent rental fees.
+
+Automated coverage now protects public and authenticated behaviour through
+Vitest, React Testing Library, frontend API-client tests, Jest, Supertest,
+PostgreSQL pgTAP, Row Level Security tests, privacy-contract assertions and
+GitHub Actions.
+
+Sprint 4 documentation, complete-diff review, pull-request review and merge
+closeout remain in progress.
 ## Problem
 
 Property seekers commonly experience:
@@ -543,40 +563,30 @@ Automated database tests use their own controlled fixtures instead of depending 
 
 ### Requirements
 
-```text
-docs/requirements/product-requirements.md
-```
+- [Product Requirements](docs/requirements/product-requirements.md)
 
-### System Architecture
+### Architecture and Security
 
-```text
-docs/architecture/system-architecture.md
-```
+- [System Architecture](docs/architecture/system-architecture.md)
+- [Architecture Decision Records](docs/architecture/decisions/)
+- [ADR-010: Self-Service Provider Authentication and Authorization](docs/architecture/decisions/ADR-010-self-service-provider-authentication-and-authorization.md)
+- [Data Retention and Erasure](docs/security/data-retention-and-erasure.md)
 
-### Architecture Decisions
+### Database
 
-```text
-docs/architecture/decisions/
-```
+- [Database Design](docs/database/database-design.md)
+- [Constraints and Indexes](docs/database/constraints-and-indexes.md)
+- [Entity-Relationship Diagram](docs/database/er-diagram.md)
+- [Provider Verification Design](docs/database/provider-verification-design.md)
 
-### Database Design
+### API Contracts
 
-```text
-docs/database/
-```
-
-### API Contract
-
-```text
-docs/api/public-catalog-api.md
-```
+- [Public Property Catalogue API](docs/api/public-catalog-api.md)
+- [Authentication and Provider Access API](docs/api/authentication-api.md)
 
 ### Sprint Records
 
-```text
-docs/sprints/
-```
-
+- [Sprint Records](docs/sprints/)
 ## Development Workflow
 
 Features are developed on dedicated branches.
@@ -603,41 +613,48 @@ Do not merge an incomplete, failing or unreviewed feature directly into `main`.
 
 The project does not yet include:
 
-- Authentication screens and frontend session management
-- Self-service seeker and provider registration
-- Automatic provider enrolment
-- Protected provider workspace
-- Provider property-management and submission APIs
-- Cloudinary upload and media delivery integration
+- Provider-owned property-draft creation and editing
+- Provider management of units, fees, amenities and protected locations
+- Controlled listing submission and resubmission
+- Administrator review and publication APIs
+- Cloudinary upload and media-delivery integration
 - Interactive public virtual tours
 - Google Maps integration
-- Dedicated in-application administrator dashboard
-- Browser end-to-end tests
+- A dedicated in-application administrator dashboard
+- Automated browser end-to-end tests
 - Controlled exact-location disclosure
+- Production hosting and production OAuth redirect configuration
 - Booking
 - Payments
 
-Initial administrator review may use the Supabase Dashboard. The absence of a dedicated administrator interface does not permit providers to verify or publish their own submissions.
+Google OAuth currently uses an external audience in Testing mode. Only approved
+Google test users can complete the OAuth flow.
+
+The completed manual OAuth journey verifies local development behaviour; it
+does not replace future automated browser testing or production configuration
+review.
+
+Initial administrator review may use the Supabase Dashboard. The absence of a
+dedicated administrator interface does not permit providers to verify or publish
+their own submissions.
 
 ## Roadmap
 
 ### Next
 
-- Complete and review the Sprint 4 security and requirements documentation
-- Add Supabase authentication to the React frontend
-- Add seeker and provider registration choices
-- Add automatic, narrowly scoped provider enrolment
-- Add backend access-token validation and role authorization
-- Add UUID-based provider ownership policies and security tests
-- Add the protected provider-workspace foundation
-- Complete deployment-readiness review for the public catalogue
-- Select a zero-cost frontend hosting service before deployment
+- Finish the Sprint 4 security and API documentation audit
+- Review the complete Sprint 4 implementation diff
+- Open and review the Sprint 4 implementation pull request
+- Merge only after all required automated checks pass
+- Complete the Sprint 4 review and retrospective
 
 ### Following Sprint
 
 - Add provider-owned property drafts
-- Add units, transparent fees, amenities and protected location forms
+- Enforce provider ownership through UUID relationships and Row Level Security
+- Add units, transparent fees, amenities and protected-location forms
 - Add controlled listing submission and administrator review
+- Add provider ownership and cross-account security tests
 - Integrate signed Cloudinary uploads
 - Add approved photos, videos and 360-degree panorama viewing
 - Invite providers and internal testers for structured feedback

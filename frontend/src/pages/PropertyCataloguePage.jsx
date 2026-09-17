@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { getProperties } from "../api/propertyApi";
 
 const propertyTypes = new Set([
@@ -120,6 +125,27 @@ function PropertyCard({ property }) {
 }
 
 function PropertyCataloguePage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [showSignedOutMessage, setShowSignedOutMessage] = useState(
+    () => location.state?.signedOut === true,
+  );
+
+  useEffect(() => {
+    if (!showSignedOutMessage) {
+      return undefined;
+    }
+
+    const messageTimer = window.setTimeout(() => {
+      setShowSignedOutMessage(false);
+    }, 6_000);
+
+    return () => {
+      window.clearTimeout(messageTimer);
+    };
+  }, [showSignedOutMessage]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const queryString = searchParams.toString();
 
@@ -137,6 +163,30 @@ function PropertyCataloguePage() {
 
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (location.state?.signedOut !== true) {
+      return;
+    }
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+      },
+      {
+        replace: true,
+        state: null,
+      },
+    );
+  }, [
+    location.hash,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+  ]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -235,12 +285,22 @@ function PropertyCataloguePage() {
             Kudu
           </Link>
 
-          <nav aria-label="Primary navigation">
+          <nav
+            aria-label="Primary navigation"
+            className="flex items-center gap-4 sm:gap-6"
+          >
             <Link
               to="/properties"
               className="font-medium text-kudu-green hover:underline"
             >
               Browse properties
+            </Link>
+
+            <Link
+              to="/join"
+              className="rounded-lg bg-kudu-green px-4 py-2 font-semibold text-white transition hover:opacity-90"
+            >
+              Join
             </Link>
           </nav>
         </div>
@@ -248,6 +308,22 @@ function PropertyCataloguePage() {
 
       <main>
         <section className="border-b border-black/10">
+          {showSignedOutMessage && (
+            <div className="mb-8 flex items-start justify-between gap-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <p className="font-medium text-green-900" role="status">
+                You have signed out successfully.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowSignedOutMessage(false)}
+                aria-label="Dismiss sign-out confirmation"
+                className="shrink-0 font-semibold text-green-900 hover:underline"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
           <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-kudu-green">
               Verified rental discovery
