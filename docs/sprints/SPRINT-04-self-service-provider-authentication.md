@@ -420,8 +420,8 @@ reviewed for the following sprint.
 | S4-039 | Review Supabase URL and redirect configuration         | Done    |
 | S4-040 | Configure the approved zero-cost authentication method | Done    |
 | S4-041 | Perform controlled local manual verification           | Done    |
-| S4-042 | Update security and API documentation                  | Pending |
-| S4-043 | Review the complete implementation diff                | Pending |
+| S4-042 | Update security and API documentation                  | Done    |
+| S4-043 | Review the complete implementation diff                | Done    |
 | S4-044 | Open and review the Sprint 4 implementation PR         | Pending |
 | S4-045 | Merge only after all required checks pass              | Pending |
 | S4-046 | Complete the Sprint 4 review and retrospective         | Pending |

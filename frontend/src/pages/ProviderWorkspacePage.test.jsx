@@ -194,6 +194,34 @@ describe("Protected provider workspace session handling", () => {
     expect(enrolCurrentUserAsProvider).not.toHaveBeenCalled();
   });
 
+    test("loads an existing provider workspace when intent storage is unavailable", async () => {
+    const storagePrototype = Object.getPrototypeOf(
+      window.sessionStorage,
+    );
+
+    const getItemSpy = vi
+      .spyOn(storagePrototype, "getItem")
+      .mockImplementation(() => {
+        throw new Error("Browser storage is unavailable.");
+      });
+
+    try {
+      renderWorkspace();
+      await emitSession("INITIAL_SESSION", makeSession());
+
+      expect(
+        await screen.findByRole("heading", {
+          name: "Welcome, Test Provider",
+        }),
+      ).toBeTruthy();
+
+      expect(enrolCurrentUserAsProvider).not.toHaveBeenCalled();
+      expect(getProviderWorkspace).toHaveBeenCalledTimes(1);
+    } finally {
+      getItemSpy.mockRestore();
+    }
+  });
+
   test("completes provider intent before loading the workspace", async () => {
     storeRegistrationIntent("provider");
     renderWorkspace();

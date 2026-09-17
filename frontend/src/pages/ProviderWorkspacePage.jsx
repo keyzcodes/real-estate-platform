@@ -10,6 +10,15 @@ import {
   getProviderWorkspace,
 } from "../api/authApi";
 
+function hasProviderRegistrationIntent() {
+  try {
+    return readRegistrationIntent() === "provider";
+  } catch {
+    // Registration intent is only a UI hint. Database roles remain authoritative.
+    return false;
+  }
+}
+
 function ProviderWorkspacePage() {
   const navigate = useNavigate();
 
@@ -73,7 +82,7 @@ function ProviderWorkspacePage() {
       });
 
       try {
-        if (readRegistrationIntent() === "provider") {
+        if (hasProviderRegistrationIntent()) {
           await enrolCurrentUserAsProvider(accessToken, {
             signal: controller.signal,
           });

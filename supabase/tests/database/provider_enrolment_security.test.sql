@@ -5,7 +5,7 @@ with schema extensions;
 
 set local search_path = public, extensions;
 
-select plan(19);
+select plan(21);
 
 -- ============================================================
 -- Controlled authentication fixtures
@@ -28,11 +28,19 @@ values
 (
     '94000000-0000-4000-8000-000000000003',
     '{"full_name": "Suspended Provider Test User"}'::jsonb
+),
+(
+    '94000000-0000-4000-8000-000000000004',
+    '{"full_name": "Pending Provider Test User"}'::jsonb
 );
 
 update public.profiles
 set account_status = 'suspended'
 where id = '94000000-0000-4000-8000-000000000003';
+
+update public.profiles
+set account_status = 'pending_verification'
+where id = '94000000-0000-4000-8000-000000000004';
 
 -- ============================================================
 -- Function security contract
@@ -236,7 +244,7 @@ set local request.jwt.claim.sub =
 select throws_ok(
     'select public.enrol_current_user_as_provider()',
     '42501',
-    'Suspended profiles cannot enrol as property providers.',
+    'Only active profiles can enrol as property providers.',
     'suspended profiles cannot enrol as providers'
 );
 
@@ -252,6 +260,36 @@ select is(
     ),
     0::bigint,
     'failed suspended-profile enrolment creates no provider role'
+);
+
+-- ============================================================
+-- Pending-verification profile protection
+-- ============================================================
+
+set local role authenticated;
+
+set local request.jwt.claim.sub =
+    '94000000-0000-4000-8000-000000000004';
+
+select throws_ok(
+    'select public.enrol_current_user_as_provider()',
+    '42501',
+    'Only active profiles can enrol as property providers.',
+    'pending-verification profiles cannot enrol as providers'
+);
+
+reset role;
+
+select is(
+    (
+        select count(*)
+        from public.user_roles
+        where profile_id =
+            '94000000-0000-4000-8000-000000000004'
+        and role = 'property_provider'
+    ),
+    0::bigint,
+    'failed pending-verification enrolment creates no provider role'
 );
 
 select * from finish();
