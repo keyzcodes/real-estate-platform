@@ -1,0 +1,114 @@
+name: Service Continuity
+
+on:
+  schedule:
+    # Every Monday and Thursday at 06:17 UTC (07:17 WAT).
+- cron: "17 6 * * 1,4"
+
+  workflow_dispatch:
+    inputs:
+      send_test_alert:
+        description: Send a Telegram test alert after the Supabase check
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: service-continuity
+  cancel-in-progress: false
+
+jobs:
+  check-supabase:
+    name: Check Supabase activity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Query public properties through Supabase REST
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          if [[ -z "${SUPABASE_URL}" || -z "${SUPABASE_PUBLISHABLE_KEY}" ]]; then
+            echo "::error::SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY secrets are required."
+            exit 1
+          fi
+
+          response_file="$(mktemp)"
+          trap 'rm -f "${response_file}"' EXIT
+
+          http_status="$(
+            curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 10 \
+              --max-time 30 \
+              --retry 2 \
+              --retry-all-errors \
+              --retry-delay 2 \
+              --output "${response_file}" \
+              --write-out "%{http_code}" \
+              --header "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+              --header "Accept: application/json" \
+              "${SUPABASE_URL%/}/rest/v1/properties?select=id&limit=1"
+          )"
+
+          if [[ "${http_status}" != "200" ]]; then
+            echo "::error::Supabase continuity check returned HTTP ${http_status}."
+            exit 1
+          fi
+
+          if ! jq -e 'type == "array"' "${response_file}" > /dev/null; then
+            echo "::error::Supabase returned an unexpected response body."
+            exit 1
+          fi
+
+          echo "Supabase continuity check passed."
+
+      - name: Send Telegram alert
+        if: ${{ failure() || inputs.send_test_alert }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          JOB_STATUS: ${{ job.status }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          if [[ -z "${TELEGRAM_BOT_TOKEN}" || -z "${TELEGRAM_CHAT_ID}" ]]; then
+            echo "::error::Telegram notification secrets are not configured."
+            exit 1
+          fi
+
+          if [[ "${JOB_STATUS}" == "failure" ]]; then
+            alert_title="🚨 Kudu Supabase check failed"
+            alert_detail="The scheduled direct Supabase query did not complete successfully."
+          else
+            alert_title="✅ Kudu Telegram test successful"
+            alert_detail="Telegram notifications are configured correctly."
+          fi
+
+          message="${alert_title}
+
+          ${alert_detail}
+          Repository: ${REPOSITORY}
+          Workflow run: ${RUN_URL}"
+
+          curl \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --request POST \
+            --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${message}" \
+            > /dev/null
