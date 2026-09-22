@@ -1,44 +1,95 @@
-name: Service Continuity
+name: Production Continuity
 
 on:
   schedule:
-    # Every Monday and Thursday at 06:17 UTC (07:17 WAT).
-- cron: "17 6 * * 1,4"
+    # Every six hours at minute 17 UTC.
+    - cron: "17 */6 * * *"
 
   workflow_dispatch:
     inputs:
       send_test_alert:
-        description: Send a Telegram test alert after the Supabase check
+        description: Send a Telegram test alert after the checks
         required: false
         default: false
         type: boolean
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/service-continuity.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: service-continuity
+  group: production-continuity
   cancel-in-progress: false
 
 jobs:
-  check-supabase:
-    name: Check Supabase activity
+  production-smoke-tests:
+    name: Production smoke tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
+
+    env:
+      FRONTEND_URL: https://real-estate-platform.sundayjime1.workers.dev
+      API_BASE_URL: https://real-estate-platform-koio.onrender.com/api/v1
 
     steps:
-      - name: Query public properties through Supabase REST
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      - name: Check public frontend routes
         shell: bash
         run: |
           set -Eeuo pipefail
 
-          if [[ -z "${SUPABASE_URL}" || -z "${SUPABASE_PUBLISHABLE_KEY}" ]]; then
-            echo "::error::SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY secrets are required."
-            exit 1
-          fi
+          temporary_directory="$(mktemp -d)"
+          trap 'rm -rf "${temporary_directory}"' EXIT
+
+          check_route() {
+            local route="$1"
+            local filename
+            local response_file
+            local http_status
+
+            filename="$(echo "${route}" | tr '/?' '__')"
+            response_file="${temporary_directory}/${filename}.html"
+
+            http_status="$(
+              curl \
+                --silent \
+                --show-error \
+                --location \
+                --connect-timeout 15 \
+                --max-time 90 \
+                --retry 3 \
+                --retry-all-errors \
+                --retry-delay 5 \
+                --output "${response_file}" \
+                --write-out "%{http_code}" \
+                "${FRONTEND_URL%/}${route}"
+            )"
+
+            if [[ "${http_status}" != "200" ]]; then
+              echo "::error::Frontend route ${route} returned HTTP ${http_status}."
+              exit 1
+            fi
+
+            if ! grep -Fq '<div id="root"></div>' "${response_file}"; then
+              echo "::error::Frontend route ${route} did not return the React application."
+              exit 1
+            fi
+
+            echo "Frontend route ${route} passed."
+          }
+
+          check_route "/"
+          check_route "/sign-in"
+          check_route "/auth/callback"
+
+      - name: Check backend health
+        shell: bash
+        run: |
+          set -Eeuo pipefail
 
           response_file="$(mktemp)"
           trap 'rm -f "${response_file}"' EXIT
@@ -48,29 +99,70 @@ jobs:
               --silent \
               --show-error \
               --location \
-              --connect-timeout 10 \
-              --max-time 30 \
-              --retry 2 \
+              --connect-timeout 15 \
+              --max-time 90 \
+              --retry 3 \
               --retry-all-errors \
-              --retry-delay 2 \
+              --retry-delay 5 \
               --output "${response_file}" \
               --write-out "%{http_code}" \
-              --header "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
-              --header "Accept: application/json" \
-              "${SUPABASE_URL%/}/rest/v1/properties?select=id&limit=1"
+              "${API_BASE_URL%/}/health"
           )"
 
           if [[ "${http_status}" != "200" ]]; then
-            echo "::error::Supabase continuity check returned HTTP ${http_status}."
+            echo "::error::Backend health endpoint returned HTTP ${http_status}."
             exit 1
           fi
 
-          if ! jq -e 'type == "array"' "${response_file}" > /dev/null; then
-            echo "::error::Supabase returned an unexpected response body."
+          if ! jq -e '
+            .success == true and
+            .data.status == "healthy" and
+            (.data.service | type == "string")
+          ' "${response_file}" > /dev/null; then
+            echo "::error::Backend health endpoint returned an unexpected response."
             exit 1
           fi
 
-          echo "Supabase continuity check passed."
+          echo "Backend health check passed."
+
+      - name: Check public catalogue journey
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          response_file="$(mktemp)"
+          trap 'rm -f "${response_file}"' EXIT
+
+          http_status="$(
+            curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 15 \
+              --max-time 90 \
+              --retry 3 \
+              --retry-all-errors \
+              --retry-delay 5 \
+              --output "${response_file}" \
+              --write-out "%{http_code}" \
+              "${API_BASE_URL%/}/properties?page=1&limit=1&sort=newest"
+          )"
+
+          if [[ "${http_status}" != "200" ]]; then
+            echo "::error::Public catalogue returned HTTP ${http_status}."
+            exit 1
+          fi
+
+          if ! jq -e '
+            .success == true and
+            (.data.properties | type == "array") and
+            (.data.pagination | type == "object")
+          ' "${response_file}" > /dev/null; then
+            echo "::error::Public catalogue returned an unexpected response."
+            exit 1
+          fi
+
+          echo "Public catalogue journey passed."
 
       - name: Send Telegram alert
         if: ${{ failure() || inputs.send_test_alert }}
@@ -85,16 +177,16 @@ jobs:
           set -Eeuo pipefail
 
           if [[ -z "${TELEGRAM_BOT_TOKEN}" || -z "${TELEGRAM_CHAT_ID}" ]]; then
-            echo "::error::Telegram notification secrets are not configured."
-            exit 1
+            echo "::warning::Telegram secrets are not configured; notification skipped."
+            exit 0
           fi
 
           if [[ "${JOB_STATUS}" == "failure" ]]; then
-            alert_title="🚨 Kudu Supabase check failed"
-            alert_detail="The scheduled direct Supabase query did not complete successfully."
+            alert_title="🚨 Kudu production check failed"
+            alert_detail="At least one public production journey failed."
           else
             alert_title="✅ Kudu Telegram test successful"
-            alert_detail="Telegram notifications are configured correctly."
+            alert_detail="Production notifications are configured correctly."
           fi
 
           message="${alert_title}
@@ -107,6 +199,10 @@ jobs:
             --fail-with-body \
             --silent \
             --show-error \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --retry 2 \
+            --retry-all-errors \
             --request POST \
             --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
